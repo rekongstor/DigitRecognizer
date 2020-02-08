@@ -33,6 +33,7 @@
     <ClInclude Include="Random.h" />
     <ClInclude Include="SingleCoreDG.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Window.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
