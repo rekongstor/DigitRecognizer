@@ -79,12 +79,12 @@ void DigitRecognizer::SetData(const char* train_file_labels, const char* train_f
 void DigitRecognizer::PrintRandom()
 {
 	sample& s = train_data[rnd.Int(0, static_cast<int32_t>(train_data.size())-1)];
-	for (int i = 0; i < IMG_SIZE; ++i)
-	{
-		for (int j = 0; j < IMG_SIZE; ++j)
-			std::cout << (s.image[i][j] > 127 ? '1' : ' ');
-		std::cout << std::endl;
-	}
-	std::cout << "Number: " << static_cast<int32_t>(s.label) << std::endl;
-	return;
+	//for (int i = 0; i < IMG_SIZE; ++i)
+	//{
+	//	for (int j = 0; j < IMG_SIZE; ++j)
+	//		std::cout << (s.image[i][j] > 127 ? '1' : ' ');
+	//	std::cout << std::endl;
+	//}
+	//std::cout << "Number: " << static_cast<int32_t>(s.label) << std::endl;
+	//return;
 }
