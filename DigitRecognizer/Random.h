@@ -2,11 +2,13 @@
 
 class Random
 {
-	std::mt19937 s_RandomEngine;
-	std::uniform_int_distribution<std::mt19937::result_type> s_Distribution;
-public:
+	static Random s_random;
+	static std::mt19937 s_RandomEngine;
+	static std::uniform_int_distribution<std::mt19937::result_type> s_Distribution;
 	Random();
-	float Float();
-	int32_t Int(int32_t start, int32_t end);
+	Random(const Random&) = delete;
+public:
+	static float Float();
+	static int32_t Int(int32_t start, int32_t end);
 };
 

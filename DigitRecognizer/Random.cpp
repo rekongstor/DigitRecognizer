@@ -15,4 +15,6 @@ int32_t Random::Int(int32_t start, int32_t end)
 	return (s_Distribution(s_RandomEngine) % (end - start + 1)) + start;
 }
 
-Random rnd;
+std::mt19937 Random::s_RandomEngine;
+std::uniform_int_distribution<std::mt19937::result_type> Random::s_Distribution;
+Random Random::s_random;
