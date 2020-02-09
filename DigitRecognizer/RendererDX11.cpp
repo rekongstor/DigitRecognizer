@@ -43,11 +43,13 @@ void RendererDX11::OnInit(HWND__* hWnd)
 
 
 	// get the address of the back buffer
-	ID3D11Texture2D* pBackBuffer;
+	ID3D11Texture2D* pBackBuffer = nullptr;
 	swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
+	if (pBackBuffer == nullptr)
+		throw (RendererDX11EX());
 
-	// use the back buffer address to create the render target
 	dev->CreateRenderTargetView(pBackBuffer, NULL, &backbuffer);
+	// use the back buffer address to create the render target
 	pBackBuffer->Release();
 
 	// set the render target as the back buffer

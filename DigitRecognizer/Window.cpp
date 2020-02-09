@@ -14,6 +14,13 @@ LRESULT Window::OnUpdate(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 }
 
+void Window::InitRenderer()
+{
+	Window::renderer = std::static_pointer_cast<RendererBase>(std::make_shared<RendererDX11>());
+
+	Renderer::InitRenderer(static_cast<RendererBase*>(Window::renderer.get()));
+}
+
 int Window::OnInit(HINSTANCE hInstance, HINSTANCE, PSTR, INT iCmdShow)
 {
 	HWND                hWnd;
@@ -46,10 +53,9 @@ int Window::OnInit(HINSTANCE hInstance, HINSTANCE, PSTR, INT iCmdShow)
 		NULL);                    // creation parameters
 
 	ShowWindow(hWnd, iCmdShow);
-	
-	RendererDX11 rdx11;
 
-	Renderer::InitRenderer(static_cast<RendererBase*>(&rdx11));
+	Window::InitRenderer();
+
 	Renderer::OnInit(hWnd);
 	UpdateWindow(hWnd);
 	while (GetMessage(&msg, NULL, 0, 0))
@@ -62,3 +68,5 @@ int Window::OnInit(HINSTANCE hInstance, HINSTANCE, PSTR, INT iCmdShow)
 
 	return (int)msg.wParam;
 }
+
+std::shared_ptr<RendererBase> Window::renderer;

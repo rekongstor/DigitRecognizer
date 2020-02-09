@@ -23,6 +23,7 @@ int digit_recognizer()
 INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int iCmdShow)
 {
 	digit_recognizer();
+
 	return Window::OnInit(hInstance, hPrevInstance, lpCmdLine, iCmdShow);
 }
 
