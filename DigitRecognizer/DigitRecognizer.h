@@ -3,7 +3,7 @@
 
 struct sample
 {
-	uint8_t image[IMG_SIZE][IMG_SIZE];
+	float_t image[TEXTURE_SIZE][TEXTURE_SIZE];
 	uint8_t label;
 };
 
