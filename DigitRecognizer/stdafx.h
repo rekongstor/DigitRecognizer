@@ -7,6 +7,8 @@
 #include <random>
 #include <iostream>
 #include <string>
+#include <array>
+
 
 #include "Exceptions.h"
 #include "Random.h"

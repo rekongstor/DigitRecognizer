@@ -22,7 +22,7 @@
     <None Include="..\Readme.md" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DigitRecognizer.cpp" />
+    <ClCompile Include="Dataset.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Random.cpp" />
     <ClCompile Include="Renderer.cpp" />
@@ -31,7 +31,7 @@
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DigitRecognizer.h" />
+    <ClInclude Include="Dataset.h" />
     <ClInclude Include="Exceptions.h" />
     <ClInclude Include="Random.h" />
     <ClInclude Include="Renderer.h" />

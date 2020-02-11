@@ -38,9 +38,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DigitRecognizer.cpp">
-      <Filter>Source Files\Functional</Filter>
-    </ClCompile>
     <ClCompile Include="Main.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
@@ -58,6 +55,9 @@
     </ClCompile>
     <ClCompile Include="Window.cpp">
       <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Dataset.cpp">
+      <Filter>Source Files\Functional</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -85,7 +85,7 @@
     <ClInclude Include="Window.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="DigitRecognizer.h">
+    <ClInclude Include="Dataset.h">
       <Filter>Header Files\Functional</Filter>
     </ClInclude>
   </ItemGroup>
