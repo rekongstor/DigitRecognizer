@@ -49,13 +49,13 @@ void SingleCoreDR::TestNN(const Dataset& dataset)
 	{
 		auto p = (test_images[t]);
 		for (int i = 0; i < LAYER_1_NEURONS; ++i)
-			CalculateNeuron(layer_1[i], layer_1_biases[i], test_images[t], layer_1_weights[i], IMG_SIZE * IMG_SIZE);
+			CalculateNeuron(layer_1[i], layer_1_biases[i], &test_images[t][0], &layer_1_weights[i][0], IMG_SIZE * IMG_SIZE);
 
 		for (int i = 0; i < LAYER_2_NEURONS; ++i)
-			CalculateNeuron(layer_2[i], layer_2_biases[i], &layer_1[0], layer_2_weights[i], LAYER_1_NEURONS);
+			CalculateNeuron(layer_2[i], layer_2_biases[i], &layer_1[0], &layer_2_weights[i][0], LAYER_1_NEURONS);
 
 		for (int i = 0; i < RESULT_NEURONS; ++i)
-			CalculateNeuron(res_layer[i], res_layer_biases[i], &layer_2[0], res_layer_weights[i], LAYER_2_NEURONS);
+			CalculateNeuron(res_layer[i], res_layer_biases[i], &layer_2[0], &res_layer_weights[i][0], LAYER_2_NEURONS);
 
 		uint8_t res_label = 0;
 		float_t max_weight = res_layer[0];
