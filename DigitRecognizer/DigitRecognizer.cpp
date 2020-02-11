@@ -21,12 +21,12 @@ inline void Read(std::ifstream& in, T& value, bool Convert)
 		ConvertEndian<T>(value);
 }
 
-DigitRecognizer::DigitRecognizer()
+Dataset::Dataset()
 {
 }
 
 
-void DigitRecognizer::SetData(const char* train_file_labels, const char* train_file_images, const char* test_file_labels, const char* test_file_images)
+void Dataset::SetData(const char* train_file_labels, const char* train_file_images, const char* test_file_labels, const char* test_file_images)
 {
 	auto labels_set = [](sample& sample_ref, std::ifstream& in, bool Convert)
 	{
@@ -88,20 +88,4 @@ void DigitRecognizer::SetData(const char* train_file_labels, const char* train_f
 	load_data(train_file_images, train_data, images_set, 0x00000803);
 	load_data(test_file_labels, test_data, labels_set, 0x00000801);
 	load_data(test_file_images, test_data, images_set, 0x00000803);
-}
-
-void DigitRecognizer::PrintRandom()
-{
-	sample& s = train_data[rnd.Int(0, static_cast<int32_t>(train_data.size())-1)];
-	std::string tmp("");
-	for (int i = 0; i < IMG_SIZE; ++i)
-	{
-		for (int j = 0; j < IMG_SIZE; ++j)
-			tmp += (s.image[i][j] > 0.5f ? '1' : ' ');
-		tmp += '\n';
-	}
-	tmp += "Number: ";
-	tmp += ('0' + static_cast<int32_t>(s.label));
-	tmp += '\n';
-	return;
 }
