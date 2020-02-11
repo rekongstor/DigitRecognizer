@@ -50,13 +50,13 @@
     <ClCompile Include="RendererDX11.cpp">
       <Filter>Source Files\Core\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="SingleCoreDG.cpp">
-      <Filter>Source Files\Functional</Filter>
-    </ClCompile>
     <ClCompile Include="Window.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
     <ClCompile Include="Dataset.cpp">
+      <Filter>Source Files\Functional</Filter>
+    </ClCompile>
+    <ClCompile Include="SingleCoreDR.cpp">
       <Filter>Source Files\Functional</Filter>
     </ClCompile>
   </ItemGroup>
@@ -76,9 +76,6 @@
     <ClInclude Include="Random.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="SingleCoreDG.h">
-      <Filter>Header Files\Functional</Filter>
-    </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
@@ -86,6 +83,12 @@
       <Filter>Header Files\Core</Filter>
     </ClInclude>
     <ClInclude Include="Dataset.h">
+      <Filter>Header Files\Functional</Filter>
+    </ClInclude>
+    <ClInclude Include="DigitRecognizer.h">
+      <Filter>Header Files\Functional</Filter>
+    </ClInclude>
+    <ClInclude Include="SingleCoreDR.h">
       <Filter>Header Files\Functional</Filter>
     </ClInclude>
   </ItemGroup>

@@ -27,17 +27,18 @@
     <ClCompile Include="Random.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="RendererDX11.cpp" />
-    <ClCompile Include="SingleCoreDG.cpp" />
+    <ClCompile Include="SingleCoreDR.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dataset.h" />
+    <ClInclude Include="DigitRecognizer.h" />
     <ClInclude Include="Exceptions.h" />
     <ClInclude Include="Random.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="RendererBase.h" />
     <ClInclude Include="RendererDX11.h" />
-    <ClInclude Include="SingleCoreDG.h" />
+    <ClInclude Include="SingleCoreDR.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>

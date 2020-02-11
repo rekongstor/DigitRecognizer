@@ -17,5 +17,9 @@
 #define TEXTURE_SIZE 32
 #define TRAIN_SIZE 60000
 #define TEST_SIZE 10000
+#define LAYER_1_NEURONS 16
+#define LAYER_2_NEURONS 16
+#define RESULT_NEURONS 10 // [0-9]
 
-extern Random rnd;
+typedef std::vector<uint8_t> label_vector;
+typedef std::vector<float_t[IMG_SIZE*IMG_SIZE]> image_vector;

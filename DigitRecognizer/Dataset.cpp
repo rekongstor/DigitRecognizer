@@ -74,7 +74,7 @@ inline void Dataset::LoadData(const char* file, image_vector& set, int32_t msb)
 			{
 				uint8_t tmp_pixel;
 				Read<>(input_data, tmp_pixel, needsEndianConver);
-				set[i][u][v] = static_cast<float_t>(tmp_pixel) / 255.f;
+				set[i][u * 28 + v] = static_cast<float_t>(tmp_pixel) / 255.f;
 			}
 	}
 }

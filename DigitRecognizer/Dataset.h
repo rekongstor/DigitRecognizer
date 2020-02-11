@@ -1,11 +1,8 @@
 #pragma once
 
-typedef std::vector<uint8_t> label_vector;
-typedef std::vector<std::array<std::array<float_t, IMG_SIZE>, IMG_SIZE>> image_vector;
-
 class Dataset
 {
-
+	friend class SingleCoreDR;
 	image_vector train_data_image;
 	label_vector train_data_label;
 	image_vector test_data_image;
