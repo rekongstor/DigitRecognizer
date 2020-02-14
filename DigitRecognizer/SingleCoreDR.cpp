@@ -35,6 +35,31 @@ void SingleCoreDR::InitNN()
 
 void SingleCoreDR::TrainNN(const Dataset& dataset)
 {
+	auto& test_labels = dataset.test_data_label;
+	auto& test_images = dataset.test_data_image;
+	std::array<float_t, LAYER_1_NEURONS> layer_1;
+	std::array<float_t, LAYER_2_NEURONS> layer_2;
+	std::array<float_t, RESULT_NEURONS> res_layer;
+	int32_t true_result = 0;
+	for (int t = 0; t < test_labels.size(); ++t)
+	{
+		auto p = (test_images[t]);
+		for (int i = 0; i < LAYER_1_NEURONS; ++i)
+			CalculateNeuron(layer_1[i], layer_1_biases[i], &test_images[t][0], &layer_1_weights[i][0], IMG_SIZE * IMG_SIZE);
+
+		for (int i = 0; i < LAYER_2_NEURONS; ++i)
+			CalculateNeuron(layer_2[i], layer_2_biases[i], &layer_1[0], &layer_2_weights[i][0], LAYER_1_NEURONS);
+
+		for (int i = 0; i < RESULT_NEURONS; ++i)
+			CalculateNeuron(res_layer[i], res_layer_biases[i], &layer_2[0], &res_layer_weights[i][0], LAYER_2_NEURONS);
+
+		float_t disp = 0.f;
+		for (int i = 0; i < RESULT_NEURONS; ++i)
+		{
+			float_t true_value = ((test_labels[t] - 1) == i) ? 1.f : 0.f;
+			disp += (res_layer[i] - true_value) * (res_layer[i] - true_value);
+		}
+	}
 }
 
 void SingleCoreDR::TestNN(const Dataset& dataset)
