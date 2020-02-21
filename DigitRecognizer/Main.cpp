@@ -19,6 +19,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
 	for (auto& it : drs)
 	{
 		it->InitNN();
+		it->TrainNN(data);
 		it->TestNN(data);
 	}
 
