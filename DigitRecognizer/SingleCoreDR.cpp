@@ -36,30 +36,31 @@ void SingleCoreDR::InitNN()
 
 void SingleCoreDR::TrainNN(const Dataset& dataset)
 {
-	
+
 	std::array<float_t, LAYER_1_NEURONS> layer_1_biases_dt;
 	std::array<std::array<float_t, IMG_SIZE * IMG_SIZE>, LAYER_1_NEURONS> layer_1_weights_dt;
-	float_t layer_1_biases_len = 0.f;
-	float_t layer_1_weights_len = 0.f;
 
 	std::array<float_t, LAYER_2_NEURONS> layer_2_biases_dt;
 	std::array< std::array<float_t, LAYER_1_NEURONS>, LAYER_2_NEURONS> layer_2_weights_dt;
-	float_t layer_2_biases_len = 0.f;
-	float_t layer_2_weights_len = 0.f;
 
 	std::array<float_t, RESULT_NEURONS> res_layer_biases_dt;
 	std::array< std::array<float_t, LAYER_2_NEURONS>, RESULT_NEURONS> res_layer_weights_dt;
-	float_t res_layer_biases_len = 0.f;
-	float_t res_layer_weights_len = 0.f;
-	float_t grad_len = 0.f;
 
 	int offset = 0;
 	int batch_scale = 1;
+	float_t grad_step = 1.f;
 	volatile float_t disp;
 	volatile float_t new_disp = GetDisp(dataset, offset, batch_scale);
 
-	while (batch_scale < 64)
+	while (true)
 	{
+		float_t layer_1_biases_len = 0.f;
+		float_t layer_1_weights_len = 0.f;
+		float_t layer_2_biases_len = 0.f;
+		float_t layer_2_weights_len = 0.f;
+		float_t res_layer_biases_len = 0.f;
+		float_t res_layer_weights_len = 0.f;
+		float_t grad_len = 0.f;
 		disp = new_disp;
 		// calculate differentials
 		for (int i = 0; i < LAYER_1_NEURONS; ++i)
@@ -122,46 +123,55 @@ void SingleCoreDR::TrainNN(const Dataset& dataset)
 
 		grad_len = sqrt(grad_len);
 
-		// subtract gradient
-		for (int i = 0; i < LAYER_1_NEURONS; ++i)
+		if (grad_len > 0.000001f)
 		{
-			for (int j = 0; j < IMG_SIZE * IMG_SIZE; ++j)
+			// subtract gradient
+			for (int i = 0; i < LAYER_1_NEURONS; ++i)
 			{
-				layer_1_weights[i][j] -= ((layer_1_weights_dt[i][j] / grad_len));
+				for (int j = 0; j < IMG_SIZE * IMG_SIZE; ++j)
+				{
+					layer_1_weights[i][j] -= ((layer_1_weights_dt[i][j] / grad_len) * grad_step);
+				}
+				layer_1_biases[i] -= ((layer_1_biases_dt[i] / grad_len) * grad_step);
 			}
-			layer_1_biases[i] -= ((layer_1_biases_dt[i] / grad_len));
-		}
 
-		for (int i = 0; i < LAYER_2_NEURONS; ++i)
+			for (int i = 0; i < LAYER_2_NEURONS; ++i)
+			{
+				for (int j = 0; j < LAYER_1_NEURONS; ++j)
+				{
+					layer_2_weights[i][j] -= ((layer_2_weights_dt[i][j] / grad_len) * grad_step);
+				}
+				layer_2_biases[i] -= ((layer_2_biases_dt[i] / grad_len) * grad_step);
+			}
+
+			for (int i = 0; i < RESULT_NEURONS; ++i)
+			{
+				for (int j = 0; j < LAYER_2_NEURONS; ++j)
+				{
+					res_layer_weights[i][j] -= ((res_layer_weights_dt[i][j] / grad_len) * grad_step);
+				}
+				res_layer_biases[i] -= ((res_layer_biases_dt[i] / grad_len) * grad_step);
+			}
+
+			// calculate new original dispersion
+			new_disp = GetDisp(dataset, offset, batch_scale);
+			//	batch_scale *= 2;
+			if (new_disp > disp)
+			{
+				grad_step = 1.f;
+			}
+			else
+				if (grad_step > 1.f / 64.f)
+					grad_step *= 2.f;
+		}
+		else
 		{
-			for (int j = 0; j < LAYER_1_NEURONS; ++j)
-			{
-				layer_2_weights[i][j] -= ((layer_2_weights_dt[i][j] / grad_len));
-			}
-			layer_2_biases[i] -= ((layer_2_biases_dt[i] / grad_len));
+			// move train offset
+			offset += TRAIN_SAMPLE_SIZE * batch_scale;
+			if (offset + TRAIN_SAMPLE_SIZE * batch_scale >= dataset.train_data_label.size())
+				break;
+			new_disp = GetDisp(dataset, offset, batch_scale);
 		}
-
-		for (int i = 0; i < RESULT_NEURONS; ++i)
-		{
-			for (int j = 0; j < LAYER_2_NEURONS; ++j)
-			{
-				res_layer_weights[i][j] -= ((res_layer_weights_dt[i][j] / grad_len));
-			}
-			res_layer_biases[i] -= ((res_layer_biases_dt[i] / grad_len));
-		}
-
-
-		// calculate new original dispersion
-		new_disp = GetDisp(dataset, offset, batch_scale);
-		if (abs(new_disp - disp) < 0.0001f)
-			batch_scale *= 2;
-
-		// move train offset
-		offset += TRAIN_SAMPLE_SIZE * batch_scale;
-		if (offset + TRAIN_SAMPLE_SIZE * batch_scale >= dataset.train_data_label.size())
-			offset = 0;
-		new_disp = GetDisp(dataset, offset, batch_scale);
-
 	};
 
 	return;
@@ -191,7 +201,7 @@ inline float_t SingleCoreDR::GetDisp(const Dataset& dataset, uint32_t offset, ui
 
 		disp_result += (1.f - res_layer[train_labels[t]]) * (1.f - res_layer[train_labels[t]]);
 	}
-	return disp_result / (float)(TRAIN_SAMPLE_SIZE * batch_scale);
+	return sqrt(disp_result) / (float)(TRAIN_SAMPLE_SIZE * batch_scale);
 }
 
 inline void SingleCoreDR::NormalizeResLayer(std::array<float_t, RESULT_NEURONS>& res_layer)

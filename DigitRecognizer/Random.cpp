@@ -2,7 +2,8 @@
 
 Random::Random()
 {
-	s_RandomEngine.seed(std::random_device()());
+	//s_RandomEngine.seed(std::random_device()());
+	s_RandomEngine.seed(4221);
 }
 
 float Random::Float()
