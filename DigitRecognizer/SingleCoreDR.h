@@ -17,7 +17,8 @@ class SingleCoreDR : public IDigitRecognizer
 	// layer 1: 16 neurons
 
 	inline void CalculateNeuron(float_t& neuron, const float_t & bias, const float_t * const data, const float_t * const weight, int32_t size);
-	inline float_t GetDisp(const Dataset& dataset, int offset);
+	inline float_t GetDisp(const Dataset& dataset, uint32_t offset, uint32_t batch_scale);
+	inline void NormalizeResLayer(std::array<float_t, RESULT_NEURONS>& res_layer);
 
 	// Inherited via IDigitRecognizer
 	virtual void InitNN() override;
