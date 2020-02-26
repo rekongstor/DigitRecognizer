@@ -51,22 +51,24 @@ inline std::pair<int32_t, bool> Dataset::LoadHeader(std::ifstream& input_data, i
 	return std::make_pair<>(number_of_items, needEndianConvert);
 }
 
-inline void Dataset::LoadData(const char* file, label_vector& set, int32_t msb)
+inline void Dataset::LoadDataLabel(const char* file, Matrix2d* set, int32_t msb)
 {
 	std::ifstream input_data(file, std::ios_base::binary);
 	auto [number_of_items, needsEndianConver] = LoadHeader(input_data, msb);
-	set.resize(number_of_items);
+	//set.resize(number_of_items);
 	for (int i = 0; i < number_of_items; ++i)
 	{
-		Read<>(input_data, set[i], needsEndianConver);
+		uint8_t tmp;
+		Read<>(input_data, tmp, needsEndianConver);
+		set[i].mx[tmp] = 1.f; // установка 1.f для нужного лейбла
 	}
 }
 
-inline void Dataset::LoadData(const char* file, image_vector& set, int32_t msb)
+inline void Dataset::LoadDataImage(const char* file, Matrix2d* set, int32_t msb)
 {
 	std::ifstream input_data(file, std::ios_base::binary);
 	auto [number_of_items, needsEndianConver] = LoadHeader(input_data, msb);
-	set.resize(number_of_items);
+	//set.resize(number_of_items);
 	for (int i = 0; i < number_of_items; ++i)
 	{
 		for (int u = 0; u < 28; ++u)
@@ -74,7 +76,7 @@ inline void Dataset::LoadData(const char* file, image_vector& set, int32_t msb)
 			{
 				uint8_t tmp_pixel;
 				Read<>(input_data, tmp_pixel, needsEndianConver);
-				set[i][u * 28 + v] = static_cast<float_t>(tmp_pixel) / 255.f;
+				set[i].mx[u * TEXTURE_SIZE + v] = static_cast<float_t>(tmp_pixel) / 255.f;
 			}
 	}
 }
@@ -91,8 +93,18 @@ Dataset::Dataset(const char* train_file_labels, const char* train_file_images, c
 
 void Dataset::SetData(const char* train_file_labels, const char* train_file_images, const char* test_file_labels, const char* test_file_images)
 {
-	LoadData(train_file_labels, train_data_label, 0x00000801);
-	LoadData(train_file_images, train_data_image, 0x00000803);
-	LoadData(test_file_labels, test_data_label, 0x00000801);
-	LoadData(test_file_images, test_data_image, 0x00000803);
+	for (auto& m : train_labels)
+		m.Init(10, 1);
+	for (auto& m : test_labels)
+		m.Init(10, 1);
+
+	for (auto& m : train_images)
+		m.Init(32, 32);
+	for (auto& m : test_images)
+		m.Init(32, 32);
+
+	LoadDataLabel(train_file_labels, train_labels, 0x00000801);
+	LoadDataImage(train_file_images, train_images, 0x00000803);
+	LoadDataLabel(test_file_labels, test_labels, 0x00000801);
+	LoadDataImage(test_file_images, test_images, 0x00000803);
 }

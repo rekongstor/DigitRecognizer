@@ -31,6 +31,12 @@
     <Filter Include="Header Files\Core\Renderer">
       <UniqueIdentifier>{dfd0b6da-3065-4a82-8a2c-9af4e26d5dc5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Functional\Matrix">
+      <UniqueIdentifier>{52adc650-4bd7-479f-bf06-6063060dc196}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Functional\Matrix">
+      <UniqueIdentifier>{46898ab6-9f50-4466-a690-7397a931ed12}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Readme.md">
@@ -58,6 +64,9 @@
     </ClCompile>
     <ClCompile Include="SingleCoreDR.cpp">
       <Filter>Source Files\Functional</Filter>
+    </ClCompile>
+    <ClCompile Include="Matrix2d.cpp">
+      <Filter>Source Files\Functional\Matrix</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -90,6 +99,9 @@
     </ClInclude>
     <ClInclude Include="SingleCoreDR.h">
       <Filter>Header Files\Functional</Filter>
+    </ClInclude>
+    <ClInclude Include="Matrix2d.h">
+      <Filter>Header Files\Functional\Matrix</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

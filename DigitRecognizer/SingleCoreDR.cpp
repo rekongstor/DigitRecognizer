@@ -168,7 +168,7 @@ void SingleCoreDR::TrainNN(const Dataset& dataset)
 		{
 			// move train offset
 			offset += TRAIN_SAMPLE_SIZE * batch_scale;
-			if (offset + TRAIN_SAMPLE_SIZE * batch_scale >= dataset.train_data_label.size())
+			if (offset + TRAIN_SAMPLE_SIZE * batch_scale >= TRAIN_SIZE)
 				break;
 			new_disp = GetDisp(dataset, offset, batch_scale);
 		}
@@ -179,29 +179,30 @@ void SingleCoreDR::TrainNN(const Dataset& dataset)
 
 inline float_t SingleCoreDR::GetDisp(const Dataset& dataset, uint32_t offset, uint32_t batch_scale)
 {
-	auto& train_labels = dataset.train_data_label;
-	auto& train_images = dataset.train_data_image;
-	std::array<float_t, LAYER_1_NEURONS> layer_1;
-	std::array<float_t, LAYER_2_NEURONS> layer_2;
-	std::array<float_t, RESULT_NEURONS> res_layer;
-	float_t disp_result = 0.f;
-	for (int t = offset; t < offset + TRAIN_SAMPLE_SIZE * batch_scale; ++t)
-	{
-		for (int i = 0; i < LAYER_1_NEURONS; ++i)
-			CalculateNeuron(layer_1[i], layer_1_biases[i], &train_images[t][0], &layer_1_weights[i][0], IMG_SIZE * IMG_SIZE);
+	//auto& train_labels = dataset.train_data_label;
+	//auto& train_images = dataset.train_data_image;
+	//std::array<float_t, LAYER_1_NEURONS> layer_1;
+	//std::array<float_t, LAYER_2_NEURONS> layer_2;
+	//std::array<float_t, RESULT_NEURONS> res_layer;
+	//float_t disp_result = 0.f;
+	//for (int t = offset; t < offset + TRAIN_SAMPLE_SIZE * batch_scale; ++t)
+	//{
+	//	for (int i = 0; i < LAYER_1_NEURONS; ++i)
+	//		CalculateNeuron(layer_1[i], layer_1_biases[i], &train_images[t][0], &layer_1_weights[i][0], IMG_SIZE * IMG_SIZE);
 
-		for (int i = 0; i < LAYER_2_NEURONS; ++i)
-			CalculateNeuron(layer_2[i], layer_2_biases[i], &layer_1[0], &layer_2_weights[i][0], LAYER_1_NEURONS);
+	//	for (int i = 0; i < LAYER_2_NEURONS; ++i)
+	//		CalculateNeuron(layer_2[i], layer_2_biases[i], &layer_1[0], &layer_2_weights[i][0], LAYER_1_NEURONS);
 
-		for (int i = 0; i < RESULT_NEURONS; ++i)
-			CalculateNeuron(res_layer[i], res_layer_biases[i], &layer_2[0], &res_layer_weights[i][0], LAYER_2_NEURONS);
+	//	for (int i = 0; i < RESULT_NEURONS; ++i)
+	//		CalculateNeuron(res_layer[i], res_layer_biases[i], &layer_2[0], &res_layer_weights[i][0], LAYER_2_NEURONS);
 
-		NormalizeResLayer(res_layer);
+	//	NormalizeResLayer(res_layer);
 
 
-		disp_result += (1.f - res_layer[train_labels[t]]) * (1.f - res_layer[train_labels[t]]);
-	}
-	return sqrt(disp_result) / (float)(TRAIN_SAMPLE_SIZE * batch_scale);
+	//	disp_result += (1.f - res_layer[train_labels[t]]) * (1.f - res_layer[train_labels[t]]);
+	//}
+	//return sqrt(disp_result) / (float)(TRAIN_SAMPLE_SIZE * batch_scale);
+	return 1.f;
 }
 
 inline void SingleCoreDR::NormalizeResLayer(std::array<float_t, RESULT_NEURONS>& res_layer)
@@ -218,35 +219,35 @@ inline void SingleCoreDR::NormalizeResLayer(std::array<float_t, RESULT_NEURONS>&
 
 void SingleCoreDR::TestNN(const Dataset& dataset)
 {
-	auto& test_labels = dataset.test_data_label;
-	auto& test_images = dataset.test_data_image;
-	std::array<float_t, LAYER_1_NEURONS> layer_1;
-	std::array<float_t, LAYER_2_NEURONS> layer_2;
-	std::array<float_t, RESULT_NEURONS> res_layer;
-	volatile int32_t true_result = 0;
-	for (int t = 0; t < test_labels.size(); ++t)
-	{
-		for (int i = 0; i < LAYER_1_NEURONS; ++i)
-			CalculateNeuron(layer_1[i], layer_1_biases[i], &test_images[t][0], &layer_1_weights[i][0], IMG_SIZE * IMG_SIZE);
+	//auto& test_labels = dataset.test_data_label;
+	//auto& test_images = dataset.test_data_image;
+	//std::array<float_t, LAYER_1_NEURONS> layer_1;
+	//std::array<float_t, LAYER_2_NEURONS> layer_2;
+	//std::array<float_t, RESULT_NEURONS> res_layer;
+	//volatile int32_t true_result = 0;
+	//for (int t = 0; t < test_labels.size(); ++t)
+	//{
+	//	for (int i = 0; i < LAYER_1_NEURONS; ++i)
+	//		CalculateNeuron(layer_1[i], layer_1_biases[i], &test_images[t][0], &layer_1_weights[i][0], IMG_SIZE * IMG_SIZE);
 
-		for (int i = 0; i < LAYER_2_NEURONS; ++i)
-			CalculateNeuron(layer_2[i], layer_2_biases[i], &layer_1[0], &layer_2_weights[i][0], LAYER_1_NEURONS);
+	//	for (int i = 0; i < LAYER_2_NEURONS; ++i)
+	//		CalculateNeuron(layer_2[i], layer_2_biases[i], &layer_1[0], &layer_2_weights[i][0], LAYER_1_NEURONS);
 
-		for (int i = 0; i < RESULT_NEURONS; ++i)
-			CalculateNeuron(res_layer[i], res_layer_biases[i], &layer_2[0], &res_layer_weights[i][0], LAYER_2_NEURONS);
+	//	for (int i = 0; i < RESULT_NEURONS; ++i)
+	//		CalculateNeuron(res_layer[i], res_layer_biases[i], &layer_2[0], &res_layer_weights[i][0], LAYER_2_NEURONS);
 
-		uint8_t res_label = 0;
-		float_t max_weight = res_layer[0];
-		for (int i = 1; i < RESULT_NEURONS; ++i)
-		{
-			if (res_layer[i] > max_weight)
-			{
-				res_label = i;
-				max_weight = res_layer[i];
-			}
-		}
-		if (test_labels[t] == res_label + 1)
-			++true_result;
-	}
-	return;
+	//	uint8_t res_label = 0;
+	//	float_t max_weight = res_layer[0];
+	//	for (int i = 1; i < RESULT_NEURONS; ++i)
+	//	{
+	//		if (res_layer[i] > max_weight)
+	//		{
+	//			res_label = i;
+	//			max_weight = res_layer[i];
+	//		}
+	//	}
+	//	if (test_labels[t] == res_label + 1)
+	//		++true_result;
+	//}
+	//return;
 }
