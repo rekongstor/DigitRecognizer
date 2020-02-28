@@ -1,7 +1,6 @@
 #include "SingleLayerDR.h"
 #include "Dataset.h"
 
-#pragma optimize("", off)
 Matrix2d SingleLayerDR::Calculate(const Matrix2d& input)
 {
 	Matrix2d res(10, 1);
@@ -9,8 +8,6 @@ Matrix2d SingleLayerDR::Calculate(const Matrix2d& input)
 	res = res + b1;
 	return res;
 }
-#pragma optimize("", on)
-
 void SingleLayerDR::NumGrad(Matrix2d& vals, Matrix2d& grad)
 {
 	float_t loss = Loss();
@@ -23,7 +20,6 @@ void SingleLayerDR::NumGrad(Matrix2d& vals, Matrix2d& grad)
 	}
 }
 
-#pragma optimize("", off)
 float_t SingleLayerDR::Loss()
 {
 	float_t L = 0.f;
@@ -48,7 +44,6 @@ float_t SingleLayerDR::Loss()
 		L += v * v;
 	return L;
 }
-#pragma optimize("", on)
 
 uint32_t SingleLayerDR::True()
 {
@@ -103,20 +98,20 @@ void SingleLayerDR::InitNN()
 void SingleLayerDR::TrainNN()
 {	
 	offset = 0;
+	grad_step = 32.f;
 	while (offset + BATCH_SIZE < TRAIN_SIZE)
 	{
-		grad_step = 32.f;
-		while (True() != BATCH_SIZE)
-		{
-			float loss = Loss();
-			NumGrad(w1, w1_grad);
-			NumGrad(b1, b1_grad);
-			w1 = w1 + w1_grad;
-			b1 = b1 + b1_grad;
-			if (Loss() > loss)
-				grad_step *= 0.5f;
-			++gens;
-		}
+		float loss = Loss();
+		NumGrad(w1, w1_grad);
+		NumGrad(b1, b1_grad);
+		w1 = w1 + w1_grad;
+		b1 = b1 + b1_grad;
+		if ((Loss() > loss) && grad_step > 1.f)
+			grad_step *= 0.5f;
+		else
+			if (grad_step < 32.f)
+				grad_step *= 2.f;
+		++gens;
 		offset += BATCH_SIZE;
 	}
 	return;
