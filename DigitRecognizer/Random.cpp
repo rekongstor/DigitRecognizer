@@ -1,5 +1,3 @@
-#include "Random.h"
-
 Random::Random()
 {
 	//s_RandomEngine.seed(std::random_device()());

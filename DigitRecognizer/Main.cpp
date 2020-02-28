@@ -4,7 +4,7 @@ main с загрузкой датасета в память
 
 #include "Dataset.h"
 #include "Window.h"
-#include "SingleCoreDR.h"
+#include "SingleLayerDR.h"
 
 Dataset data("train-labels.idx1-ubyte", "train-images.idx3-ubyte", "t10k-labels.idx1-ubyte", "t10k-images.idx3-ubyte");	
 
@@ -13,14 +13,14 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
 
 	std::vector<IDigitRecognizer*> drs;
 
-	SingleCoreDR simple_dr;
+	SingleLayerDR simple_dr(data);
 	drs.push_back(&simple_dr);
 
 	for (auto& it : drs)
 	{
 		it->InitNN();
-		it->TrainNN(data);
-		it->TestNN(data);
+		it->TrainNN();
+		it->TestNN();
 	}
 	
 

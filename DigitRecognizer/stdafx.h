@@ -9,7 +9,6 @@
 #include <string>
 #include <array>
 
-
 #include "Exceptions.h"
 #include "Random.h"
 
@@ -20,8 +19,8 @@
 #define LAYER_1_NEURONS 16
 #define LAYER_2_NEURONS 16
 #define RESULT_NEURONS 10 // [0-9]
-#define TRAIN_SAMPLE_SIZE 10
-#define GRAD_DELTA 0.0001f
+#define BATCH_SIZE 50
+#define DELTA 0.001f
 
 typedef std::vector<uint8_t> label_vector;
 typedef std::vector<std::array<float_t,IMG_SIZE*IMG_SIZE>> image_vector;

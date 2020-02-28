@@ -51,25 +51,24 @@ inline std::pair<int32_t, bool> Dataset::LoadHeader(std::ifstream& input_data, i
 	return std::make_pair<>(number_of_items, needEndianConvert);
 }
 
-inline void Dataset::LoadDataLabel(const char* file, Matrix2d* set, int32_t msb)
+inline void Dataset::LoadData(const char* file, uint8_t* set, int32_t msb)
 {
 	std::ifstream input_data(file, std::ios_base::binary);
 	auto [number_of_items, needsEndianConver] = LoadHeader(input_data, msb);
 	//set.resize(number_of_items);
 	for (int i = 0; i < number_of_items; ++i)
 	{
-		uint8_t tmp;
-		Read<>(input_data, tmp, needsEndianConver);
-		set[i].mx[tmp] = 1.f; // установка 1.f для нужного лейбла
+		Read<>(input_data, set[i], needsEndianConver);
 	}
 }
 
-inline void Dataset::LoadDataImage(const char* file, Matrix2d* set, int32_t msb)
+inline void Dataset::LoadData(const char* file, Matrix2d* set, int32_t msb)
 {
 	std::ifstream input_data(file, std::ios_base::binary);
 	auto [number_of_items, needsEndianConver] = LoadHeader(input_data, msb);
 	//set.resize(number_of_items);
-	for (int i = 0; i < number_of_items; ++i)
+	for (int i = 0; i < number_of_items; ++i) 
+	//for (int i = 0; i < 512; ++i) // TODO: change back
 	{
 		for (int u = 0; u < 28; ++u)
 			for (int v = 0; v < 28; ++v)
@@ -93,18 +92,14 @@ Dataset::Dataset(const char* train_file_labels, const char* train_file_images, c
 
 void Dataset::SetData(const char* train_file_labels, const char* train_file_images, const char* test_file_labels, const char* test_file_images)
 {
-	for (auto& m : train_labels)
-		m.Init(10, 1);
-	for (auto& m : test_labels)
-		m.Init(10, 1);
-
 	for (auto& m : train_images)
-		m.Init(32, 32);
+		m.Init(1024, 1);
 	for (auto& m : test_images)
-		m.Init(32, 32);
+		m.Init(1024, 1);
 
-	LoadDataLabel(train_file_labels, train_labels, 0x00000801);
-	LoadDataImage(train_file_images, train_images, 0x00000803);
-	LoadDataLabel(test_file_labels, test_labels, 0x00000801);
-	LoadDataImage(test_file_images, test_images, 0x00000803);
+	LoadData(train_file_images, train_images, 0x00000803);
+	LoadData(train_file_labels, train_labels, 0x00000801);
+
+	LoadData(test_file_images, test_images, 0x00000803);
+	LoadData(test_file_labels, test_labels, 0x00000801);
 }

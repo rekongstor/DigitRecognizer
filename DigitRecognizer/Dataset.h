@@ -3,16 +3,16 @@
 
 class Dataset
 {
-	friend class SingleCoreDR;
+	friend class SingleLayerDR;
 	//image_vector train_data_image;
 	//label_vector train_data_label;
 	//image_vector test_data_image;
 	//label_vector test_data_label;
 
 	Matrix2d train_images[TRAIN_SIZE];
-	Matrix2d train_labels[TRAIN_SIZE];
+	uint8_t train_labels[TRAIN_SIZE];
 	Matrix2d test_images[TEST_SIZE];
-	Matrix2d test_labels[TEST_SIZE];
+	uint8_t test_labels[TEST_SIZE];
 
 public:
 	Dataset();
@@ -26,6 +26,6 @@ private:
 	inline void Read(std::ifstream& in, T& value, bool Convert);
 
 	inline std::pair<int32_t, bool> LoadHeader(std::ifstream& input_data, int32_t msb);
-	inline void LoadDataLabel(const char* file, Matrix2d* set, int32_t msb);
-	inline void LoadDataImage(const char* file, Matrix2d* set, int32_t msb);
+	inline void LoadData(const char* file, Matrix2d* set, int32_t msb);
+	inline void LoadData(const char* file, uint8_t* set, int32_t msb);
 };

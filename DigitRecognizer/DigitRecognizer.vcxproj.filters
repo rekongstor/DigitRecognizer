@@ -62,11 +62,11 @@
     <ClCompile Include="Dataset.cpp">
       <Filter>Source Files\Functional</Filter>
     </ClCompile>
-    <ClCompile Include="SingleCoreDR.cpp">
-      <Filter>Source Files\Functional</Filter>
-    </ClCompile>
     <ClCompile Include="Matrix2d.cpp">
       <Filter>Source Files\Functional\Matrix</Filter>
+    </ClCompile>
+    <ClCompile Include="SingleLayerDR.cpp">
+      <Filter>Source Files\Functional</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -97,11 +97,11 @@
     <ClInclude Include="DigitRecognizer.h">
       <Filter>Header Files\Functional</Filter>
     </ClInclude>
-    <ClInclude Include="SingleCoreDR.h">
-      <Filter>Header Files\Functional</Filter>
-    </ClInclude>
     <ClInclude Include="Matrix2d.h">
       <Filter>Header Files\Functional\Matrix</Filter>
+    </ClInclude>
+    <ClInclude Include="SingleLayerDR.h">
+      <Filter>Header Files\Functional</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

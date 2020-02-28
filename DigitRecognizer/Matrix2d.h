@@ -12,9 +12,13 @@ public:
 	Matrix2d();
 	Matrix2d(uint32_t _i, uint32_t _j);
 	Matrix2d(uint32_t _i, uint32_t _j, float* data);
-	void Init(uint32_t _i, uint32_t _j);;
+	void Resize(uint32_t _i, uint32_t _j);
+	void Init(uint32_t _i, uint32_t _j);
 	void Init(uint32_t _i, uint32_t _j, float* data);;
 
 
-	Matrix2d operator*(const Matrix2d& r);
+	Matrix2d operator*(const Matrix2d& r) const;
+	Matrix2d& operator+(const Matrix2d& r);
+	float& operator()(uint32_t _i, uint32_t _j);
+	float operator()(uint32_t _i, uint32_t _j) const;
 };
