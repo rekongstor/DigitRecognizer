@@ -8,6 +8,7 @@
 #include <iostream>
 #include <string>
 #include <array>
+#include <functional>
 
 #include "Exceptions.h"
 #include "Random.h"

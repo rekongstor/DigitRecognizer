@@ -65,7 +65,10 @@
     <ClCompile Include="Matrix2d.cpp">
       <Filter>Source Files\Functional\Matrix</Filter>
     </ClCompile>
-    <ClCompile Include="SingleLayerDR.cpp">
+    <ClCompile Include="SimpleNN.cpp">
+      <Filter>Source Files\Functional</Filter>
+    </ClCompile>
+    <ClCompile Include="Layer.cpp">
       <Filter>Source Files\Functional</Filter>
     </ClCompile>
   </ItemGroup>
@@ -100,7 +103,10 @@
     <ClInclude Include="Matrix2d.h">
       <Filter>Header Files\Functional\Matrix</Filter>
     </ClInclude>
-    <ClInclude Include="SingleLayerDR.h">
+    <ClInclude Include="Layer.h">
+      <Filter>Header Files\Functional</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleNN.h">
       <Filter>Header Files\Functional</Filter>
     </ClInclude>
   </ItemGroup>

@@ -3,15 +3,15 @@
 
 class Dataset
 {
-	friend class SingleLayerDR;
+	friend class Layer;
 	//image_vector train_data_image;
 	//label_vector train_data_label;
 	//image_vector test_data_image;
 	//label_vector test_data_label;
 
-	Matrix2d train_images[TRAIN_SIZE];
+	Matrix2d train_images[TRAIN_SIZE]; //1024x1
 	uint8_t train_labels[TRAIN_SIZE];
-	Matrix2d test_images[TEST_SIZE];
+	Matrix2d test_images[TEST_SIZE]; //1024x1
 	uint8_t test_labels[TEST_SIZE];
 
 public:

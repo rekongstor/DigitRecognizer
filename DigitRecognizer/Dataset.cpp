@@ -67,8 +67,8 @@ inline void Dataset::LoadData(const char* file, Matrix2d* set, int32_t msb)
 	std::ifstream input_data(file, std::ios_base::binary);
 	auto [number_of_items, needsEndianConver] = LoadHeader(input_data, msb);
 	//set.resize(number_of_items);
-	for (int i = 0; i < number_of_items; ++i) 
-	//for (int i = 0; i < 512; ++i) // TODO: change back
+	//for (int i = 0; i < number_of_items; ++i) 
+	for (int i = 0; i < 512; ++i) // TODO: change back
 	{
 		for (int u = 0; u < 28; ++u)
 			for (int v = 0; v < 28; ++v)
@@ -77,6 +77,7 @@ inline void Dataset::LoadData(const char* file, Matrix2d* set, int32_t msb)
 				Read<>(input_data, tmp_pixel, needsEndianConver);
 				set[i].mx[u * TEXTURE_SIZE + v] = static_cast<float_t>(tmp_pixel) / 255.f;
 			}
+		set[i].mx[TEXTURE_SIZE * TEXTURE_SIZE - 1] = 1.f; // избавляемся от bias
 	}
 }
 
