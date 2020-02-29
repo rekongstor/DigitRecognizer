@@ -8,11 +8,14 @@ class Dataset
 	//label_vector train_data_label;
 	//image_vector test_data_image;
 	//label_vector test_data_label;
-
-	Matrix2d train_images[TRAIN_SIZE]; //1024x1
-	uint8_t train_labels[TRAIN_SIZE];
-	Matrix2d test_images[TEST_SIZE]; //1024x1
-	uint8_t test_labels[TEST_SIZE];
+	std::vector<Matrix2d> train_images; // BATCH_SIZE x 1024 
+	std::vector<Matrix2d> train_labels; // BATCH_SIZE x 10
+	std::vector<Matrix2d> test_images; // BATCH_SIZE x 1024 
+	std::vector<Matrix2d> test_labels; // BATCH_SIZE x 10
+	//Matrix2d train_images[TRAIN_SIZE]; //1024x1
+	//uint8_t train_labels[TRAIN_SIZE];
+	//Matrix2d test_images[TEST_SIZE]; //1024x1
+	//uint8_t test_labels[TEST_SIZE];
 
 public:
 	Dataset();
@@ -26,6 +29,5 @@ private:
 	inline void Read(std::ifstream& in, T& value, bool Convert);
 
 	inline std::pair<int32_t, bool> LoadHeader(std::ifstream& input_data, int32_t msb);
-	inline void LoadData(const char* file, Matrix2d* set, int32_t msb);
-	inline void LoadData(const char* file, uint8_t* set, int32_t msb);
+	inline void LoadData(const char* file, std::vector<Matrix2d>& set, int32_t msb);
 };

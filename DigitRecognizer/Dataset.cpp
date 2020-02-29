@@ -51,34 +51,49 @@ inline std::pair<int32_t, bool> Dataset::LoadHeader(std::ifstream& input_data, i
 	return std::make_pair<>(number_of_items, needEndianConvert);
 }
 
-inline void Dataset::LoadData(const char* file, uint8_t* set, int32_t msb)
-{
-	std::ifstream input_data(file, std::ios_base::binary);
-	auto [number_of_items, needsEndianConver] = LoadHeader(input_data, msb);
-	//set.resize(number_of_items);
-	for (int i = 0; i < number_of_items; ++i)
-	{
-		Read<>(input_data, set[i], needsEndianConver);
-	}
-}
 
-inline void Dataset::LoadData(const char* file, Matrix2d* set, int32_t msb)
+inline void Dataset::LoadData(const char* file, std::vector<Matrix2d>& set, int32_t msb)
 {
-	std::ifstream input_data(file, std::ios_base::binary);
-	auto [number_of_items, needsEndianConver] = LoadHeader(input_data, msb);
-	//set.resize(number_of_items);
-	//for (int i = 0; i < number_of_items; ++i) 
-	for (int i = 0; i < 512; ++i) // TODO: change back
+	if (msb == 0x00000801)
 	{
-		for (int u = 0; u < 28; ++u)
-			for (int v = 0; v < 28; ++v)
+		std::ifstream input_data(file, std::ios_base::binary);
+		auto [number_of_items, needsEndianConver] = LoadHeader(input_data, msb);
+		//set.resize(number_of_items);
+		for (int i = 0; i < number_of_items / BATCH_SIZE; ++i)
+		{
+			set.push_back(Matrix2d(BATCH_SIZE, 10));
+			for (int b = 0; b < BATCH_SIZE; ++b)
 			{
-				uint8_t tmp_pixel;
-				Read<>(input_data, tmp_pixel, needsEndianConver);
-				set[i].mx[u * TEXTURE_SIZE + v] = static_cast<float_t>(tmp_pixel) / 255.f;
+				uint8_t tmp_label;
+				Read<>(input_data, tmp_label, needsEndianConver);
+				set[i](b,tmp_label) = 1.f;
 			}
-		set[i].mx[TEXTURE_SIZE * TEXTURE_SIZE - 1] = 1.f; // избавляемся от bias
+		}
 	}
+
+	if (msb == 0x00000803)
+	{
+		std::ifstream input_data(file, std::ios_base::binary);
+		auto [number_of_items, needsEndianConver] = LoadHeader(input_data, msb);
+		//set.resize(number_of_items);
+		//for (int i = 0; i < number_of_items; ++i) 
+		for (int i = 0; i < 512 / BATCH_SIZE; ++i) // TODO: change back
+		{
+			set.push_back(Matrix2d(BATCH_SIZE, 1024));
+			for (int b = 0; b < BATCH_SIZE; ++b)
+			{
+				for (int u = 0; u < 28; ++u)
+					for (int v = 0; v < 28; ++v)
+					{
+						uint8_t tmp_pixel;
+						Read<>(input_data, tmp_pixel, needsEndianConver);
+						set[i](b, u* TEXTURE_SIZE + v) = static_cast<float_t>(tmp_pixel) / 255.f;
+					}
+				set[i](b,TEXTURE_SIZE* TEXTURE_SIZE - 1) = 1.f; // избавляемся от bias
+			}
+		}
+	}
+
 }
 
 Dataset::Dataset()
@@ -93,10 +108,6 @@ Dataset::Dataset(const char* train_file_labels, const char* train_file_images, c
 
 void Dataset::SetData(const char* train_file_labels, const char* train_file_images, const char* test_file_labels, const char* test_file_images)
 {
-	for (auto& m : train_images)
-		m.Init(1024, 1);
-	for (auto& m : test_images)
-		m.Init(1024, 1);
 
 	LoadData(train_file_images, train_images, 0x00000803);
 	LoadData(train_file_labels, train_labels, 0x00000801);
