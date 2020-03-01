@@ -6,6 +6,9 @@ class Layer
 	using Func_XY = void(Layer::*)(Layer*, Layer*);
 	using Func_X = void(Layer::*)(Layer*);
 
+	using Pair_XY = std::pair<Func_XY, Func_XY>;
+	using Pair_X = std::pair<Func_X, Func_X>;
+
 	Matrix2d& L;
 	Matrix2d& dL;
 	void (Layer::* func_1)(Layer*);
@@ -32,11 +35,11 @@ public:
 	Layer& operator=(const Layer& l);
 	Layer(Dataset& input); //input data layer
 	Layer(uint32_t rows, uint32_t cols); // input model layer
-	Layer(Layer* x, std::pair<Func_X, Func_X>& func); // L = f(x)
-	Layer(Layer* x, Layer* y, std::pair<Func_XY, Func_XY>& func, uint32_t rows, uint32_t cols); // L = f(x,y)
+	Layer(Layer* x, const Pair_X& func); // L = f(x)
+	Layer(Layer* x, Layer* y, const Pair_XY& func, uint32_t rows, uint32_t cols); // L = f(x,y)
 
-	static std::pair<Func_XY, Func_XY> MMul;
-	static std::pair<Func_XY, Func_XY> SMul;
-	static std::pair<Func_X, Func_X> Exp;
-	static std::pair<Func_X, Func_X> Log;
+	static const Pair_XY MMul;
+	static const Pair_XY SMul;
+	static const Pair_X Exp;
+	static const Pair_X Log;
 };

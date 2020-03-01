@@ -73,7 +73,7 @@ Layer::Layer(uint32_t rows, uint32_t cols):
 	// TODO: randomize
 }
 
-Layer::Layer(Layer* x, Layer* y, std::pair<Func_XY, Func_XY>& func, uint32_t rows, uint32_t cols):
+Layer::Layer(Layer* x, Layer* y, const Pair_XY& func, uint32_t rows, uint32_t cols):
 	L(L_self),
 	dL(dL_self),
 	func_1(nullptr),
@@ -87,7 +87,7 @@ Layer::Layer(Layer* x, Layer* y, std::pair<Func_XY, Func_XY>& func, uint32_t row
 	dL_self.Init(rows, cols);
 }
 
-Layer::Layer(Layer* x, std::pair<Func_X, Func_X>& func):
+Layer::Layer(Layer* x, const Pair_X& func):
 	L(L_self), 
 	dL(dL_self), 
 	func_1(func.first), 
@@ -150,7 +150,7 @@ void Layer::dFLog(Layer* l)
 {
 }
 
-std::pair<Layer::Func_XY, Layer::Func_XY> Layer::MMul = std::make_pair<>(&Layer::FMMul, &Layer::dFMMul);
-std::pair<Layer::Func_XY, Layer::Func_XY> Layer::SMul = std::make_pair<>(&Layer::FSMul, &Layer::dFSMul);
-std::pair<Layer::Func_X, Layer::Func_X> Layer::Exp = std::make_pair<>(&Layer::FExp, &Layer::dFExp);
-std::pair<Layer::Func_X, Layer::Func_X> Layer::Log = std::make_pair<>(&Layer::FLog, &Layer::dFLog);
+const Layer::Pair_XY Layer::MMul = Layer::Pair_XY(&Layer::FMMul, &Layer::dFMMul);
+const Layer::Pair_XY Layer::SMul = Layer::Pair_XY(&Layer::FSMul, &Layer::dFSMul);
+const Layer::Pair_X Layer::Exp = Layer::Pair_X(&Layer::FExp, &Layer::dFExp);
+const Layer::Pair_X Layer::Log = Layer::Pair_X(&Layer::FLog, &Layer::dFLog);
