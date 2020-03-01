@@ -4,20 +4,12 @@
 class Dataset
 {
 	friend class Layer;
-	//image_vector train_data_image;
-	//label_vector train_data_label;
-	//image_vector test_data_image;
-	//label_vector test_data_label;
+
+public:
 	std::vector<Matrix2d> train_images; // BATCH_SIZE x 1024 
 	std::vector<Matrix2d> train_labels; // BATCH_SIZE x 10
 	std::vector<Matrix2d> test_images; // BATCH_SIZE x 1024 
 	std::vector<Matrix2d> test_labels; // BATCH_SIZE x 10
-	//Matrix2d train_images[TRAIN_SIZE]; //1024x1
-	//uint8_t train_labels[TRAIN_SIZE];
-	//Matrix2d test_images[TEST_SIZE]; //1024x1
-	//uint8_t test_labels[TEST_SIZE];
-
-public:
 	Dataset();
 	Dataset(const char* train_file_labels, const char* train_file_images, const char* test_file_labels, const char* test_file_images);
 	inline void SetData(const char* train_file_labels, const char* train_file_images, const char* test_file_labels, const char* test_file_images);

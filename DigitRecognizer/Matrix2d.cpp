@@ -59,10 +59,14 @@ void Matrix2d::Init(uint32_t _i, uint32_t _j, float* data)
 
 float& Matrix2d::operator()(uint32_t _i, uint32_t _j)
 {
+	if ((_i > a_) || _j > b_)
+		MatrixOutOfRange();
 	return mx[_i * b_ + _j];
 }
 
 float Matrix2d::operator()(uint32_t _i, uint32_t _j) const
 {
+	if ((_i > a_) || _j > b_)
+		MatrixOutOfRange();
 	return mx[_i * b_ + _j];
 }
