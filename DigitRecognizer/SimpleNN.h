@@ -5,8 +5,8 @@
 
 class SimpleNN : public IDigitRecognizer
 {
+	std::vector<Layer> layers;
 	Dataset& dataset;
-	std::array<Layer,100> layers;
 
 	// Inherited via IDigitRecognizer
 	virtual void InitNN() override;

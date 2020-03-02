@@ -3,22 +3,30 @@
 
 class Layer
 {
+	Matrix2d* L;
+	Matrix2d L_self; // for non-input layers
+
+	Matrix2d* dL;
+	Matrix2d dL_self;
+	Matrix2d* dL1;
+	Matrix2d dL_self1;
+	Matrix2d* dL2;
+	Matrix2d dL_self2;
+
+	std::vector<Layer> *layers;
 	using Func_XY = void(Layer::*)(Layer*, Layer*);
 	using Func_X = void(Layer::*)(Layer*);
-
 	using Pair_XY = std::pair<Func_XY, Func_XY>;
 	using Pair_X = std::pair<Func_X, Func_X>;
 
-	Matrix2d& L;
-	Matrix2d& dL;
+
+	std::vector<uint32_t> depended;
 	void (Layer::* func_1)(Layer*);
 	void (Layer::* dfunc_1)(Layer*);
 	void (Layer::* func_2)(Layer*, Layer*);
 	void (Layer::* dfunc_2)(Layer*, Layer*);
-	Layer* op_1;
-	Layer* op_2;
-	Matrix2d L_self; // for non-input layers
-	Matrix2d dL_self;
+	uint32_t it_1;
+	uint32_t it_2;
 	void FMMul(Layer* l, Layer* r);
 	void dFMMul(Layer* l, Layer* r);
 	void FMAdd(Layer* l, Layer* r);
@@ -47,16 +55,21 @@ class Layer
 	void dFSumRow(Layer* l);
 	void FSum(Layer* l);
 	void dFSum(Layer* l);
+
+	void FollowProp();
 public:
 	void F();
+	void dF(float& f); // численное вычисление
+	void dF(); // аналитическое back propagation вычисление
+	float& getVal();
 	
 	Layer();
-	Layer(Layer& l);
+	Layer(const Layer& l);
 	Layer& operator=(const Layer& l);
-	Layer(Matrix2d& input); //input data layer
-	Layer(uint32_t rows, uint32_t cols); // input model layer
-	Layer(Layer* x, const Pair_X& func, uint32_t rows = 0, uint32_t cols = 0); // L = f(x)
-	Layer(Layer* x, Layer* y, const Pair_XY& func, uint32_t rows = 0, uint32_t cols = 0); // L = f(x,y)
+	Layer(std::vector<Layer>* l, Matrix2d& input); //input data layer
+	Layer(std::vector<Layer>* l, uint32_t rows, uint32_t cols); // input model layer
+	Layer(std::vector<Layer>* l, uint32_t x, const Pair_X& func, uint32_t rows = 0, uint32_t cols = 0); // L = f(x)
+	Layer(std::vector<Layer>* l, uint32_t x, uint32_t y, const Pair_XY& func, uint32_t rows = 0, uint32_t cols = 0); // L = f(x,y)
 
 	static const Pair_XY MMul; // matrix multiply by matrix
 	static const Pair_XY MAdd; // matrix multiply by matrix

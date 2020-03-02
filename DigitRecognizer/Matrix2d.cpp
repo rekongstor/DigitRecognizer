@@ -11,6 +11,25 @@ uint32_t Matrix2d::b()
 	return b_;
 }
 
+//Matrix2d::Matrix2d(const Matrix2d& l) :
+//	a_(l.a_),
+//	b_(l.b_)
+//{
+//	mx.resize(l.mx.size());
+//	for (int i = 0; i < mx.size(); ++i)
+//		mx[i] = l.mx[i];
+//}
+//
+//Matrix2d& Matrix2d::operator=(const Matrix2d& l)
+//{
+//	a_ = l.a_;
+//	b_ = l.b_;
+//	mx.resize(l.mx.size());
+//	for (int i = 0; i < mx.size(); ++i)
+//		mx[i] = l.mx[i];
+//	return *this;
+//}
+
 Matrix2d::Matrix2d() : a_(0), b_(0)
 {
 }

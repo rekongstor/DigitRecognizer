@@ -9,6 +9,9 @@ public:
 	uint32_t a();
 	uint32_t b();
 
+	//Matrix2d(const Matrix2d& l);
+	//Matrix2d& operator=(const Matrix2d& l);
+
 	Matrix2d();
 	Matrix2d(uint32_t _i, uint32_t _j);
 	Matrix2d(uint32_t _i, uint32_t _j, float* data);

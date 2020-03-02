@@ -21,7 +21,7 @@
 #define LAYER_2_NEURONS 16
 #define RESULT_NEURONS 10 // [0-9]
 #define BATCH_SIZE 20
-#define DELTA 0.001f
+#define DELTA 0.005f
 
 typedef std::vector<uint8_t> label_vector;
 typedef std::vector<std::array<float_t,IMG_SIZE*IMG_SIZE>> image_vector;
