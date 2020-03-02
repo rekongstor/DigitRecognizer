@@ -25,6 +25,7 @@ class Layer
 	void (Layer::* dfunc_1)(Layer*);
 	void (Layer::* func_2)(Layer*, Layer*);
 	void (Layer::* dfunc_2)(Layer*, Layer*);
+	uint32_t it_self;
 	uint32_t it_1;
 	uint32_t it_2;
 	void FMMul(Layer* l, Layer* r);
@@ -63,7 +64,6 @@ public:
 	void dF(); // аналитическое back propagation вычисление
 	float& getVal();
 	
-	Layer();
 	Layer(const Layer& l);
 	Layer& operator=(const Layer& l);
 	Layer(std::vector<Layer>* l, Matrix2d& input); //input data layer

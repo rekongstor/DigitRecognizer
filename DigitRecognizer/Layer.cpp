@@ -47,10 +47,30 @@ void Layer::dF()
 			v = 1.f;
 	else
 	{
-		// вычисляем производную по слоям
-
+		// расчитать свою dF
+		// сумма dependencies
+		for (uint32_t i = 0; i < dL->a(); ++i)
+			for (uint32_t j = 0; j < dL->b(); ++j)
+			{
+				(*dL)(i, j) = 0.f;
+				for (auto&& d : depended)
+				{
+					if (it_self == (*layers)[d].it_1)
+						(*dL)(i, j) += (*(*layers)[d].dL1)(i, j);
+					if (it_self == (*layers)[d].it_2)
+						(*dL)(i, j) += (*(*layers)[d].dL2)(i, j);
+				}
+			}
 	}
+
+	// расчитать dF1 и dF2 
+	if (dfunc_1 != nullptr)
+		(this->*func_1)(&(*layers)[it_1]);
+
+	if (dfunc_1 != nullptr)
+		(this->*func_2)(&(*layers)[it_1], &(*layers)[it_2]);
 }
+
 
 float& Layer::getVal()
 {
@@ -68,9 +88,6 @@ void Layer::FollowProp()
 }
 
 
-Layer::Layer() : layers(Layer::layers), L(&L_self), dL(&dL_self), dL1(&dL_self1), dL2(&dL_self2), it_1(-1), it_2(-1)
-{
-}
 
 Layer::Layer(const Layer& l):
 	layers(l.layers),
@@ -80,7 +97,8 @@ Layer::Layer(const Layer& l):
 	func_2(l.func_2),
 	dfunc_2(l.dfunc_2),
 	it_1(l.it_1),
-	it_2(l.it_2)
+	it_2(l.it_2),
+	it_self(l.it_self)
 {
 	if (l.L_self.mx.size() == 0) // input data
 	{
@@ -113,6 +131,7 @@ Layer& Layer::operator=(const Layer& l)
 	dfunc_2 = l.dfunc_2;
 	it_1 = l.it_1;
 	it_2 = l.it_2;
+	it_self = l.it_self;
 	if (l.L_self.mx.size() == 0) // input data
 	{
 		L = l.L;
@@ -147,6 +166,7 @@ Layer::Layer(std::vector<Layer>* l, Matrix2d& input) :
 	it_2(-1),
 	layers(l)
 {
+	it_self = static_cast<uint32_t>(l->size());
 }
 
 Layer::Layer(std::vector<Layer>* l, uint32_t rows, uint32_t cols):
@@ -162,6 +182,7 @@ Layer::Layer(std::vector<Layer>* l, uint32_t rows, uint32_t cols):
 	it_2(-1),
 	layers(l)
 {
+	it_self = static_cast<uint32_t>(l->size());
 	L_self.Init(rows, cols);
 	dL_self.Init(rows, cols);
 	// TODO: randomize
@@ -182,6 +203,7 @@ Layer::Layer(std::vector<Layer>* l, uint32_t x, uint32_t y, const Pair_XY& func,
 	it_2(y),
 	layers(l)
 {
+	it_self = static_cast<uint32_t>(l->size());
 	auto [f2, df2] = func;
 	func_2 = f2;
 	dfunc_2 = df2;
@@ -211,6 +233,7 @@ Layer::Layer(std::vector<Layer>* l, uint32_t x, const Pair_X& func, uint32_t row
 	it_2(-1),
 	layers(l)
 {
+	it_self = static_cast<uint32_t>(l->size());
 	auto [f2, df2] = func;
 	func_1 = f2;
 	dfunc_1 = df2;
