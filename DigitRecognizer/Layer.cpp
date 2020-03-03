@@ -57,36 +57,20 @@ void Layer::dF(float& f)
 
 void Layer::dF()
 {
-	if (!needs_grad)
-		return;
-
+	ClearGrad();
 	if (depended.size() == 0) // конечная функция
 		for (auto& v : dL->mx)
 			v = 1.f;
-	else
+	grad_done = true;
+	std::queue<size_t> q;
+	BackProp(q);
+
+	while (q.size() != 0)
 	{
-		// расчитать свою dF
-		// сумма dependencies
-		for (uint32_t i = 0; i < dL->a(); ++i)
-			for (uint32_t j = 0; j < dL->b(); ++j)
-			{
-				(*dL)(i, j) = 0.f;
-				for (size_t d = 0; d < depended.size(); ++d)
-				{
-					if (((it_self == (*layers)[depended[d]].it_1) || (it_self == (*layers)[depended[d]].it_2)) && d == 0)
-						(*dL)(i, j) += (*dL1)(i, j);
-					if (((it_self == (*layers)[depended[d]].it_1) || (it_self == (*layers)[depended[d]].it_2)) && d == 1)
-						(*dL)(i, j) += (*dL2)(i, j);
-				}
-			}
+		size_t it = q.front();
+		q.pop();
+		(*layers)[it].BackProp(q);
 	}
-
-	// расчитать dF1 и dF2 
-	if (dfunc_1 != nullptr)
-		(this->*dfunc_1)(&(*layers)[it_1]);
-
-	if (dfunc_2 != nullptr)
-		(this->*dfunc_2)(&(*layers)[it_1], &(*layers)[it_2]);
 }
 
 float& Layer::getVal()
@@ -104,20 +88,46 @@ void Layer::FollowProp()
 		(*layers)[d].FollowProp();
 }
 
-Matrix2d* Layer::GetdL(Layer* l)
+void Layer::BackProp(std::queue<size_t>& q)
 {
-	Matrix2d* dl = nullptr;
-	for (size_t i = 0; i < l->depended.size(); ++i)
-		if (l->depended[i] == it_self)
+	if (!needs_grad)
+		return;
+	if (it_1 != -1)
+		if (!(*layers)[it_1].grad_done)
 		{
-			if (i == 0)
-				dl = l->dL1;
-			if (i == 1)
-				dl = l->dL2;
+			for (auto& v : (*layers)[it_1].dL->mx)
+				v = 0.f;
+			grad_done = true;
 		}
-	if (dl == nullptr)
-		throw NotEnough_dL();
-	return dl;
+	if (it_2 != -1)
+		if (!(*layers)[it_2].grad_done)
+			if (!(*layers)[it_1].grad_done)
+			{
+				for (auto& v : (*layers)[it_1].dL->mx)
+					v = 0.f;
+				grad_done = true;
+			}
+
+	// расчитать dF1 и dF2 
+	if (dfunc_1 != nullptr)
+		(this->*dfunc_1)(&(*layers)[it_1]);
+
+	if (dfunc_2 != nullptr)
+		(this->*dfunc_2)(&(*layers)[it_1], &(*layers)[it_2]);
+
+	if (it_1 != -1)
+		q.push(it_1);
+	if (it_2 != -1)
+		q.push(it_2);
+}
+
+void Layer::ClearGrad()
+{
+	grad_done = false;
+	if (it_1 != -1)
+		(*layers)[it_1].ClearGrad();
+	if (it_2 != -1)
+		(*layers)[it_2].ClearGrad();
 }
 
 Layer::Layer(const Layer& l):
@@ -136,20 +146,13 @@ Layer::Layer(const Layer& l):
 	{
 		L = l.L;
 		dL = l.dL;
-		dL1 = l.dL1;
-		dL2 = l.dL2;
 	}
 	else
 	{
 		L_self = *l.L;
 		dL_self = *l.dL;
-		dL_self1 = *l.dL1;
-		if (l.dL2)
-			dL_self2 = *l.dL2;
 		L = &L_self;
 		dL = &dL_self;
-		dL1 = &dL_self1;
-		dL2 = &dL_self2;
 	}
 }
 
@@ -169,19 +172,13 @@ Layer& Layer::operator=(const Layer& l)
 	{
 		L = l.L;
 		dL = l.dL;
-		dL1 = l.dL1;
-		dL2 = l.dL2;
 	}
 	else
 	{
 		L_self = *l.L;
 		dL_self = *l.dL;
-		dL_self1 = *l.dL1;
-		dL_self2 = *l.dL2;
 		L = &L_self;
 		dL = &dL_self;
-		dL1 = &dL_self1;
-		dL2 = &dL_self2;
 	}
 	return *this;
 }
@@ -189,8 +186,6 @@ Layer& Layer::operator=(const Layer& l)
 Layer::Layer(std::vector<Layer>* l, Matrix2d& input) :
 	L(&input),
 	dL(&dL_self),
-	dL1(&dL_self1),
-	dL2(&dL_self2),
 	func_1(nullptr),
 	dfunc_1(nullptr),
 	func_2(nullptr),
@@ -206,8 +201,6 @@ Layer::Layer(std::vector<Layer>* l, Matrix2d& input) :
 Layer::Layer(std::vector<Layer>* l, uint32_t rows, uint32_t cols):
 	L(&L_self), 
 	dL(&dL_self), 
-	dL1(&dL_self1), 
-	dL2(&dL_self2), 
 	func_1(nullptr), 
 	dfunc_1(nullptr),
 	func_2(nullptr), 
@@ -228,8 +221,6 @@ Layer::Layer(std::vector<Layer>* l, uint32_t rows, uint32_t cols):
 Layer::Layer(std::vector<Layer>* l, uint32_t x, uint32_t y, const Pair_XY& func, uint32_t rows, uint32_t cols):
 	L(&L_self),
 	dL(&dL_self),
-	dL1(&dL_self1),
-	dL2(&dL_self2),
 	func_1(nullptr),
 	dfunc_1(nullptr),
 	//func_2(func.first), 
@@ -253,30 +244,12 @@ Layer::Layer(std::vector<Layer>* l, uint32_t x, uint32_t y, const Pair_XY& func,
 	//dL_self1.Init((*l)[x].L->a(), (*l)[x].L->b());
 	//dL_self2.Init((*l)[y].L->a(), (*l)[y].L->b());
 	(*l)[it_1].depended.push_back(static_cast<uint32_t>((*l).size()));
-
-	if ((*l)[it_1].needs_grad)
-	{
-		if ((*l)[it_1].depended.size() == 1)
-			(*l)[it_1].dL_self1.Init(rows, cols);
-		if ((*l)[it_1].depended.size() == 2)
-			(*l)[it_1].dL_self2.Init(rows, cols);
-	}
-
 	(*l)[it_2].depended.push_back(static_cast<uint32_t>((*l).size()));
-	if ((*l)[it_2].needs_grad)
-	{
-		if ((*l)[it_2].depended.size() == 1)
-			(*l)[it_2].dL_self1.Init(rows, cols);
-		if ((*l)[it_2].depended.size() == 2)
-			(*l)[it_2].dL_self2.Init(rows, cols);
-	}
 }
 
 Layer::Layer(std::vector<Layer>* l, uint32_t x, const Pair_X& func, uint32_t rows, uint32_t cols):
 	L(&L_self), 
 	dL(&dL_self), 
-	dL1(&dL_self1), 
-	dL2(&dL_self2), 
 	//func_1(func.first), 
 	//dfunc_1(func.second), 
 	func_2(nullptr), 
@@ -297,8 +270,6 @@ Layer::Layer(std::vector<Layer>* l, uint32_t x, const Pair_X& func, uint32_t row
 
 	L_self.Init(rows, cols); // размерность сохраняется
 	dL_self.Init(rows, cols);
-	dL_self1.Init((*l)[x].L->a(), (*l)[x].L->b());
-	dL_self2.Init(0, 0);
 	(*layers)[x].depended.push_back(static_cast<uint32_t>((*l).size()));
 }
 
@@ -326,6 +297,29 @@ void Layer::FMMul(Layer* l, Layer* r)
 
 void Layer::dFMMul(Layer* l, Layer* r)
 {
+	// l = a x b
+	// r = b x c
+	// dF = a x c
+	if (l->needs_grad) // dF/dl = grad * rT
+	{
+		Matrix2d* dl = l->dL; // [a x b]
+		auto& x = *dL; // [a x c]
+		auto& y = *r->L; // [b x c]
+		for (uint32_t i = 0; i < (*dl).a(); ++i) // a
+			for (uint32_t j = 0; j < (*dl).b(); ++j) // b
+				for (uint32_t k = 0; k < y.b(); ++k) // c
+					(*dl)(i, j) += x(i, k) * y(j, k);
+	}
+	if (r->needs_grad) // dF/dl = lT * grad
+	{
+		Matrix2d* dl = r->dL; // [b x c]
+		auto& x = *l->L; // [a x b]
+		auto& y = *dL; // [a x c]
+		for (uint32_t i = 0; i < (*dl).a(); ++i) // b
+			for (uint32_t j = 0; j < (*dl).b(); ++j) // c
+				for (uint32_t k = 0; k < y.a(); ++k) // a
+					(*dl)(i, j) += x(k, i) * y(k, j);
+	}
 }
 
 // FMAdd(i,j) = l(i,j) + r(i,j)
@@ -344,15 +338,15 @@ void Layer::dFMAdd(Layer* l, Layer* r)
 {
 	if (l->needs_grad) // dF/dl = 1.f
 	{
-		Matrix2d* dl = GetdL(l);
+		Matrix2d* dl = l->dL;
 		for (size_t i = 0; i < dl->mx.size(); ++i)
-			dl->mx[i] = dL->mx[i];
+			dl->mx[i] += dL->mx[i];
 	}
 	if (r->needs_grad) // dF/dr = 1.f
 	{
-		Matrix2d* dl = GetdL(r);
+		Matrix2d* dl = r->dL;
 		for (size_t i = 0; i < dl->mx.size(); ++i)
-			dl->mx[i] = dL->mx[i];
+			dl->mx[i] += dL->mx[i];
 	}
 }
 
@@ -373,15 +367,15 @@ void Layer::dFSMul(Layer* l, Layer* r)
 {
 	if (l->needs_grad) // dF(i,j)/dl(i,j) = r(0,0)
 	{
-		Matrix2d* dl = GetdL(l);
+		Matrix2d* dl = l->dL;
 		for (size_t i = 0; i < dl->mx.size(); ++i)
-			dl->mx[i] = dL->mx[i] * r->L->mx[0];
+			dl->mx[i] += dL->mx[i] * r->L->mx[0];
 	}
 	if (r->needs_grad) // dF(i,j)/dr(0,0) = l(i,j)
 	{
-		Matrix2d* dl = GetdL(r);
+		Matrix2d* dl = r->dL;
 		for (size_t i = 0; i < dl->mx.size(); ++i)
-			dl->mx[i] = dL->mx[i] * l->L->mx[i];
+			dl->mx[i] += dL->mx[i] * l->L->mx[i];
 	}
 }
 
@@ -402,15 +396,15 @@ void Layer::dFSDiv(Layer* l, Layer* r)
 {
 	if (l->needs_grad) // dF(i,j)/dl(i,j) = 1 / r(i,j)
 	{
-		Matrix2d* dl = GetdL(l);
+		Matrix2d* dl = l->dL;
 		for (size_t i = 0; i < dl->mx.size(); ++i)
-			dl->mx[i] = dL->mx[i] / r->L->mx[i]; 
+			dl->mx[i] += dL->mx[i] / r->L->mx[i]; 
 	}
 	if (r->needs_grad) // dF(i,j)/dl(i,j) = - r(i,j) / (l(i,j)^2)
 	{
-		Matrix2d* dl = GetdL(r);
+		Matrix2d* dl = r->dL;
 		for (size_t i = 0; i < dl->mx.size(); ++i)
-			dl->mx[i] = - dL->mx[i] * l->L->mx[i] / (r->L->mx[i] * r->L->mx[i]);
+			dl->mx[i] += - dL->mx[i] * l->L->mx[i] / (r->L->mx[i] * r->L->mx[i]);
 	}
 }
 
@@ -433,15 +427,15 @@ void Layer::dFSMMul(Layer* l, Layer* r)
 {
 	if (l->needs_grad) // dF(i,j)/dl(i,j) = r(i,j)
 	{
-		Matrix2d* dl = GetdL(l);
+		Matrix2d* dl = l->dL;
 		for (size_t i = 0; i < dl->mx.size(); ++i)
-			dl->mx[i] = dL->mx[i] * r->L->mx[i];
+			dl->mx[i] += dL->mx[i] * r->L->mx[i];
 	}
 	if (r->needs_grad) // dF(i,j)/dr(0,0) = l(i,j)
 	{
-		Matrix2d* dl = GetdL(r);
+		Matrix2d* dl = r->dL;
 		for (size_t i = 0; i < dl->mx.size(); ++i)
-			dl->mx[i] = dL->mx[i] * l->L->mx[i];
+			dl->mx[i] += dL->mx[i] * l->L->mx[i];
 	}
 }
 
@@ -466,20 +460,17 @@ void Layer::dFSRMul(Layer* l, Layer* r)
 {
 	if (l->needs_grad) // dF(i,0)/dl(i,j) = r(i,0)
 	{
-		Matrix2d* dl = GetdL(l);
+		Matrix2d* dl = l->dL;
 		for (uint32_t i = 0; i < dl->a(); ++i)
 			for (uint32_t j = 0; j < dl->b(); ++j)
-				(*dl)(i,j) = (*dL)(i,0) * (*r->L)(i,0);
+				(*dl)(i,j) += (*dL)(i,0) * (*r->L)(i,0);
 	}
 	if (r->needs_grad) // dF(i,0)/dr(i,0) = sum_j( l(i,j) )
 	{
-		Matrix2d* dl = GetdL(r);
+		Matrix2d* dl = r->dL;
 		for (uint32_t i = 0; i < dl->a(); ++i)
-		{
-			(*dl)(i, 0) = 0.f;
 			for (uint32_t j = 0; j < dl->b(); ++j)
 				(*dl)(i, 0) += (*dL)(i, 0) * (*l->L)(i, j);
-		}
 	}
 }
 
@@ -503,17 +494,17 @@ void Layer::dFRDiv(Layer* l, Layer* r)
 {
 	if (l->needs_grad) // dF(i,j)/dl(i,j) = 1 / r(i,0)
 	{
-		Matrix2d* dl = GetdL(l);
+		Matrix2d* dl = l->dL;
 		for (uint32_t i = 0; i < dl->a(); ++i)
 			for (uint32_t j = 0; j < dl->b(); ++j)
-				(*dl)(i, j) = (*dL)(i, j) / (*r->L)(i, 0);
+				(*dl)(i, j) += (*dL)(i, j) / (*r->L)(i, 0);
 	}
 	if (r->needs_grad) // dF(i,j)/dr(i,0) = l(i,j) / ( r(i,0) ^ 2 )
 	{
-		Matrix2d* dl = GetdL(r);
+		Matrix2d* dl = r->dL;
 		for (uint32_t i = 0; i < dl->a(); ++i)
 			for (uint32_t j = 0; j < dl->b(); ++j)
-				(*dl)(i, j) = (*dL)(i, j) * (*l->L)(i, j) / ((*r->L)(i, 0) * (*r->L)(i, 0));
+				(*dl)(i, j) += (*dL)(i, j) * (*l->L)(i, j) / ((*r->L)(i, 0) * (*r->L)(i, 0));
 	}
 }
 
@@ -529,10 +520,10 @@ void Layer::dFExp(Layer* l)
 {
 	if (l->needs_grad) // dF(i,j)/dl(i,j) = exp( l(i,j) )
 	{
-		Matrix2d* dl = GetdL(l);
+		Matrix2d* dl = l->dL;
 		for (uint32_t i = 0; i < dl->a(); ++i)
 			for (uint32_t j = 0; j < dl->b(); ++j)
-				(*dl)(i, j) = (*dL)(i, j) * exp((*l->L)(i, j));
+				(*dl)(i, j) += (*dL)(i, j) * exp((*l->L)(i, j));
 	}
 }
 
@@ -548,10 +539,10 @@ void Layer::dFLog(Layer* l)
 {
 	if (l->needs_grad) // dF(i,j)/dl(i,j) = 1 / l(i,j)
 	{
-		Matrix2d* dl = GetdL(l);
+		Matrix2d* dl = l->dL;
 		for (uint32_t i = 0; i < dl->a(); ++i)
 			for (uint32_t j = 0; j < dl->b(); ++j)
-				(*dl)(i, j) = (*dL)(i, j) / (*l->L)(i, j);
+				(*dl)(i, j) += (*dL)(i, j) / (*l->L)(i, j);
 	}
 }
 
@@ -567,10 +558,10 @@ void Layer::dFPow2(Layer* l)
 {
 	if (l->needs_grad) // dF(i,j)/dl(i,j) = 2 * l(i,j)
 	{
-		Matrix2d* dl = GetdL(l);
+		Matrix2d* dl = l->dL;
 		for (uint32_t i = 0; i < dl->a(); ++i)
 			for (uint32_t j = 0; j < dl->b(); ++j)
-				(*dl)(i, j) = (*dL)(i, j) * 2.F * (*l->L)(i, j);
+				(*dl)(i, j) += (*dL)(i, j) * 2.F * (*l->L)(i, j);
 	}
 }
 
@@ -586,10 +577,10 @@ void Layer::dFNeg(Layer* l)
 {
 	if (l->needs_grad) // dF(i,j)/dl(i,j) = -1
 	{
-		Matrix2d* dl = GetdL(l);
+		Matrix2d* dl = l->dL;
 		for (uint32_t i = 0; i < dl->a(); ++i)
 			for (uint32_t j = 0; j < dl->b(); ++j)
-				(*dl)(i, j) = -(*dL)(i, j);
+				(*dl)(i, j) += -(*dL)(i, j);
 	}
 }
 
@@ -612,10 +603,10 @@ void Layer::dFSumCol(Layer* l)
 {
 	if (l->needs_grad) // dF(i,0)/dl(i,j) = l(i,j)
 	{
-		Matrix2d* dl = GetdL(l);
+		Matrix2d* dl = l->dL;
 		for (uint32_t i = 0; i < dl->a(); ++i)
 			for (uint32_t j = 0; j < dl->b(); ++j)
-				(*dl)(i, j) = (*dL)(i, 0) * (*l->L)(i, j);
+				(*dl)(i, j) += (*dL)(i, 0) * (*l->L)(i, j);
 	}
 }
 
@@ -638,10 +629,10 @@ void Layer::dFSumRow(Layer* l)
 {
 	if (l->needs_grad) // dF(0,j)/dl(i,j) = l(i,j)
 	{
-		Matrix2d* dl = GetdL(l);
+		Matrix2d* dl = l->dL;
 		for (uint32_t i = 0; i < dl->a(); ++i)
 			for (uint32_t j = 0; j < dl->b(); ++j)
-				(*dl)(i, j) = (*dL)(0, j) * (*l->L)(i, j);
+				(*dl)(i, j) += (*dL)(0, j) * (*l->L)(i, j);
 	}
 }
 
@@ -662,10 +653,10 @@ void Layer::dFSum(Layer* l)
 {
 	if (l->needs_grad) // dF(0,0)/dl(i,j) = l(i,j)
 	{
-		Matrix2d* dl = GetdL(l);
+		Matrix2d* dl = l->dL;
 		for (uint32_t i = 0; i < dl->a(); ++i)
 			for (uint32_t j = 0; j < dl->b(); ++j)
-				(*dl)(i, j) = (*dL)(0, 0) * (*l->L)(i, j);
+				(*dl)(i, j) += (*dL)(0, 0) * (*l->L)(i, j);
 	}
 }
 

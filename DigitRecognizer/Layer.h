@@ -8,10 +8,7 @@ class Layer
 
 	Matrix2d* dL;
 	Matrix2d dL_self;
-	Matrix2d* dL1;
-	Matrix2d dL_self1;
-	Matrix2d* dL2;
-	Matrix2d dL_self2;
+	bool grad_done;
 
 	std::vector<Layer> *layers;
 	using Func_XY = void(Layer::*)(Layer*, Layer*);
@@ -59,7 +56,8 @@ class Layer
 	void dFSum(Layer* l);
 
 	void FollowProp();
-	Matrix2d* GetdL(Layer* l);
+	void BackProp(std::queue<size_t>& q);
+	void ClearGrad();
 public:
 	void F();
 	void dF(float& f); // численное вычисление

@@ -9,6 +9,7 @@
 #include <string>
 #include <array>
 #include <functional>
+#include <queue>
 
 #include "Exceptions.h"
 #include "Random.h"
