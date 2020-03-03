@@ -40,18 +40,13 @@ void Layer::dF(float& f)
 	float y = f;
 	for (uint32_t i = 0; i < (*L).mx.size(); ++i)
 	{
-		if (depended.size() == 0) // target function
-		{
-			(*dL).mx[i] = 1.f;
-		}
-		else
-		{
-			(*L).mx[i] += DELTA;
-			for (auto& d : depended)
-				(*layers)[d].FollowProp();
-			(*L).mx[i] -= DELTA;
-			(*dL).mx[i] = (f - y) / DELTA;
-		}
+		(*L).mx[i] += DELTA;
+		//for (auto& d : depended)
+		//	(*layers)[d].FollowProp();
+		for (int t = it_self + 1; t < (*layers).size(); ++t)
+			(*layers)[t].F();
+		(*L).mx[i] -= DELTA;
+		(*dL).mx[i] = (f - y) / DELTA;
 	}
 }
 
@@ -215,7 +210,7 @@ Layer::Layer(std::vector<Layer>* l, uint32_t rows, uint32_t cols):
 	dL_self.Init(rows, cols);
 	// TODO: randomize
 	for (auto& v : L->mx)
-		v = 0.2f;
+		v = 0.f;
 }
 
 Layer::Layer(std::vector<Layer>* l, uint32_t x, uint32_t y, const Pair_XY& func, uint32_t rows, uint32_t cols):
@@ -281,18 +276,13 @@ void Layer::FMMul(Layer* l, Layer* r)
 	if (x.b() != y.a())
 		throw InvalidMatrixMul();
 
-	for (uint32_t i = 0; i < x.a(); ++i)
-	{
-		const float* l1 = &(x.mx[i * x.b()]);
-		for (uint32_t j = 0; j < y.b(); ++j)
+	for (uint32_t i = 0; i < (*L).a(); ++i)
+		for (uint32_t j = 0; j < (*L).b(); ++j)
 		{
-			L->mx[j + i * y.b()] = 0.f;
-			for (uint32_t v = 0; v < x.a(); ++v)
-			{
-				L->mx[j + i * y.b()] += l1[v] * y.mx[j + y.b() * v];
-			}
+			(*L)(i,j) = 0.f;
+			for (uint32_t v = 0; v < x.b(); ++v)
+				(*L)(i,j) += x(i,v) * y(v,j);
 		}
-	}
 }
 
 void Layer::dFMMul(Layer* l, Layer* r)

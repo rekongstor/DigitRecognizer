@@ -3,6 +3,7 @@
 
 class Layer
 {
+public:
 	Matrix2d* L;
 	Matrix2d L_self; // for non-input layers
 

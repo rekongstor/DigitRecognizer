@@ -12,9 +12,9 @@ void SimpleNN::InitNN()
 	float batch_size_mas[] = { static_cast<float>(BATCH_SIZE) };
 	Matrix2d batch_size(1,1, batch_size_mas);
 
-	float regularization_scale_mas[] = { 1.3f };
+	float regularization_scale_mas[] = { 0.f };
 	Matrix2d regularization_scale(1,1, regularization_scale_mas);
-	
+
 	// 0 B = batch_size value
 	// 1 L = labels
 	// 2 I = images
@@ -57,6 +57,7 @@ void SimpleNN::InitNN()
 
 	layers[17].dF();
 	layers[3].dF(layers[17].getVal());
+
 }
 
 void SimpleNN::TrainNN()
