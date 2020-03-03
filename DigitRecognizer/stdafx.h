@@ -21,7 +21,7 @@
 #define LAYER_1_NEURONS 16
 #define LAYER_2_NEURONS 16
 #define RESULT_NEURONS 10 // [0-9]
-#define BATCH_SIZE 200
+#define BATCH_SIZE 100
 #define DELTA 0.005f
 
 float batch_size_mas[];
