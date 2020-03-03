@@ -70,12 +70,44 @@ void Layer::dF()
 	}
 }
 
+void Layer::SubGrad(float_t step)
+{
+	for (size_t i = 0; i < L->mx.size(); ++i)
+		L->mx[i] += step*dL->mx[i];
+}
+
 float& Layer::getVal()
 {
 	if ((depended.size() != 0) || ((*L).mx.size() != 1))
 		throw LayerNotFinalValue();
 
 	return (*L).mx[0];
+}
+
+uint32_t Layer::Test(uint32_t label_layer)
+{
+	Matrix2d &label = (*(*layers)[label_layer].L);
+	Matrix2d &res = (*L);
+	uint32_t ret = 0;
+
+	if ((label.a() != res.a()) || (label.b() != res.b()) && (label.a() == 0) || (label.b() == 0))
+		throw InvalidTestRefs();
+	Matrix2d T(label.a(), label.b());
+	for (uint32_t i = 0; i < res.a(); ++i)
+	{
+		float_t max_val = res(i,0);
+		float_t max_ind = 0;
+		for (uint32_t j = 1; j < res.b(); ++j)
+			if (res(i, j) > max_val)
+			{
+				max_ind = j;
+				max_val = res(i, j);
+			}
+
+		if (label(i, max_ind) > .5f) // 1.f если верно, 0.а если неверно. сравнение float = недоверие
+			++ret;
+	}
+	return ret;
 }
 
 void Layer::FollowProp()

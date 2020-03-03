@@ -77,7 +77,7 @@ inline void Dataset::LoadData(const char* file, std::vector<Matrix2d>& set, int3
 		auto [number_of_items, needsEndianConver] = LoadHeader(input_data, msb);
 		//set.resize(number_of_items);
 		//for (int i = 0; i < number_of_items; ++i) 
-		for (int i = 0; i < 512 / BATCH_SIZE; ++i) // TODO: change back
+		for (int i = 0; i < number_of_items / BATCH_SIZE; ++i) // TODO: change back
 		{
 			set.push_back(Matrix2d(BATCH_SIZE, 1024));
 			for (int b = 0; b < BATCH_SIZE; ++b)

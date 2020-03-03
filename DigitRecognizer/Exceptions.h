@@ -20,3 +20,4 @@ class InvalidMatrixResize : std::exception {};
 class InvalidMatrixTranspSize : std::exception {};
 
 class LayerNotFinalValue : std::exception {};
+class InvalidTestRefs : std::exception {};
