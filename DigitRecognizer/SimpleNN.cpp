@@ -54,7 +54,8 @@ void SimpleNN::InitNN()
 	float m = log(exp(1.f));
 	for (auto& L : layers)
 		L.F();
-	layers[17].dF();
+	for (size_t i = layers.size() - 1; i >= 0; --i)
+		layers[i].dF();
 	layers[5].dF(layers[17].getVal());
 	layers[6].dF(layers[17].getVal());
 	layers[7].dF(layers[17].getVal());

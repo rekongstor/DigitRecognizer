@@ -28,6 +28,7 @@ class Layer
 	uint32_t it_self;
 	uint32_t it_1;
 	uint32_t it_2;
+	bool needs_grad;
 	void FMMul(Layer* l, Layer* r);
 	void dFMMul(Layer* l, Layer* r);
 	void FMAdd(Layer* l, Layer* r);
@@ -38,8 +39,8 @@ class Layer
 	void dFSDiv(Layer* l, Layer* r);
 	void FSMMul(Layer* l, Layer* r);
 	void dFSMMul(Layer* l, Layer* r); 
-	void FRMul(Layer* l, Layer* r);
-	void dFRMul(Layer* l, Layer* r); 
+	void FSRMul(Layer* l, Layer* r);
+	void dFSRMul(Layer* l, Layer* r); 
 	void FRDiv(Layer* l, Layer* r); 
 	void dFRDiv(Layer* l, Layer* r);
 	void FExp(Layer* l);
@@ -58,6 +59,7 @@ class Layer
 	void dFSum(Layer* l);
 
 	void FollowProp();
+	Matrix2d* GetdL(Layer* l);
 public:
 	void F();
 	void dF(float& f); // численное вычисление

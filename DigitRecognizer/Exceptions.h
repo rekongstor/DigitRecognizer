@@ -5,6 +5,7 @@ class RendererEX : std::exception {};
 class RendererDX11EX : RendererEX {};
 
 class MatrixOutOfRange : std::exception {};
+class NotEnough_dL : std::exception {};
 
 class InvalidMatrixMul : std::exception {};
 class InvalidMatrixSMul : std::exception {};
