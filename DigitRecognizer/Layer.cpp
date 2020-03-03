@@ -250,10 +250,26 @@ Layer::Layer(std::vector<Layer>* l, uint32_t x, uint32_t y, const Pair_XY& func,
 
 	L_self.Init(rows, cols);
 	dL_self.Init(rows, cols);
-	dL_self1.Init((*l)[x].L->a(), (*l)[x].L->b());
-	dL_self2.Init((*l)[y].L->a(), (*l)[y].L->b());
-	(*layers)[x].depended.push_back(static_cast<uint32_t>((*l).size()));
-	(*layers)[y].depended.push_back(static_cast<uint32_t>((*l).size()));
+	//dL_self1.Init((*l)[x].L->a(), (*l)[x].L->b());
+	//dL_self2.Init((*l)[y].L->a(), (*l)[y].L->b());
+	(*l)[it_1].depended.push_back(static_cast<uint32_t>((*l).size()));
+
+	if ((*l)[it_1].needs_grad)
+	{
+		if ((*l)[it_1].depended.size() == 1)
+			(*l)[it_1].dL_self1.Init(rows, cols);
+		if ((*l)[it_1].depended.size() == 2)
+			(*l)[it_1].dL_self2.Init(rows, cols);
+	}
+
+	(*l)[it_2].depended.push_back(static_cast<uint32_t>((*l).size()));
+	if ((*l)[it_2].needs_grad)
+	{
+		if ((*l)[it_2].depended.size() == 1)
+			(*l)[it_2].dL_self1.Init(rows, cols);
+		if ((*l)[it_2].depended.size() == 2)
+			(*l)[it_2].dL_self2.Init(rows, cols);
+	}
 }
 
 Layer::Layer(std::vector<Layer>* l, uint32_t x, const Pair_X& func, uint32_t rows, uint32_t cols):
