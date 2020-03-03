@@ -14,6 +14,8 @@ const Layer::Pair_X Layer::Neg = { &Layer::FNeg, &Layer::dFNeg };
 const Layer::Pair_X Layer::SumCol = { &Layer::FSumCol, &Layer::dFSumCol };
 const Layer::Pair_X Layer::SumRow = { &Layer::FSumRow, &Layer::dFSumRow };
 const Layer::Pair_X Layer::Sum = { &Layer::FSum, &Layer::dFSum };
+const Layer::Pair_X Layer::Trans = { &Layer::FTrans, &Layer::dFTrans };
+const Layer::Pair_X Layer::Sqrt = { &Layer::FSqrt, &Layer::dFSqrt };
 
 void Layer::F()
 {
@@ -647,6 +649,44 @@ void Layer::dFSum(Layer* l)
 		for (uint32_t i = 0; i < dl->a(); ++i)
 			for (uint32_t j = 0; j < dl->b(); ++j)
 				(*dl)(i, j) += (*dL)(0, 0) * (*l->L)(i, j);
+	}
+}
+
+void Layer::FTrans(Layer* l)
+{
+	if ((L->a() != (*l).L->b()) || (L->b() != (*l).L->a()))
+		throw InvalidMatrixTranspSize();
+	for (uint32_t i = 0; i < L->a(); ++i)
+		for (uint32_t j = 0; j < L->b(); ++j)
+			(*L)(i, j) = (*(*l).L)(j, i);
+}
+
+void Layer::dFTrans(Layer* l)
+{
+	if (l->needs_grad) // dF(i,j)/dl(i,j) = 1 / l(i,j)
+	{
+		Matrix2d* dl = l->dL;
+		for (uint32_t i = 0; i < dl->a(); ++i)
+			for (uint32_t j = 0; j < dl->b(); ++j)
+				(*dl)(i, j) += (*dL)(j, i);
+	}
+}
+
+void Layer::FSqrt(Layer* l)
+{
+	auto& x = *l->L;
+	for (size_t i = 0; i < (*L).mx.size(); ++i)
+		(*L).mx[i] = sqrt(x.mx[i]);
+}
+
+void Layer::dFSqrt(Layer* l)
+{
+	if (l->needs_grad) // dF(i,j)/dl(i,j) = 1 / l(i,j)
+	{
+		Matrix2d* dl = l->dL;
+		for (uint32_t i = 0; i < dl->a(); ++i)
+			for (uint32_t j = 0; j < dl->b(); ++j)
+				(*dl)(i, j) += (*dL)(i, j) / (2 * sqrt((*l->L)(i, j)));
 	}
 }
 

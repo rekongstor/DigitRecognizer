@@ -3,7 +3,6 @@
 
 class Layer
 {
-public:
 	Matrix2d* L;
 	Matrix2d L_self; // for non-input layers
 
@@ -12,10 +11,6 @@ public:
 	bool grad_done;
 
 	std::vector<Layer> *layers;
-	using Func_XY = void(Layer::*)(Layer*, Layer*);
-	using Func_X = void(Layer::*)(Layer*);
-	using Pair_XY = std::pair<Func_XY, Func_XY>;
-	using Pair_X = std::pair<Func_X, Func_X>;
 
 
 	std::vector<uint32_t> depended;
@@ -55,11 +50,21 @@ public:
 	void dFSumRow(Layer* l);
 	void FSum(Layer* l);
 	void dFSum(Layer* l);
+	void FTrans(Layer* l);
+	void dFTrans(Layer* l);
+	void FSqrt(Layer* l);
+	void dFSqrt(Layer* l);
+	
 
 	void FollowProp();
 	void BackProp(std::queue<size_t>& q);
 	void ClearGrad();
 public:
+	using Func_XY = void(Layer::*)(Layer*, Layer*);
+	using Func_X = void(Layer::*)(Layer*);
+	using Pair_XY = std::pair<Func_XY, Func_XY>;
+	using Pair_X = std::pair<Func_X, Func_X>;
+
 	void F();
 	void dF(float& f); // численное вычисление
 	void dF(); // аналитическое back propagation вычисление
@@ -86,4 +91,6 @@ public:
 	static const Pair_X SumCol; // sum matrix by columns
 	static const Pair_X SumRow; // sum matrix by columns
 	static const Pair_X Sum; // sum matrix values
+	static const Pair_X Trans; // sum matrix values
+	static const Pair_X Sqrt; // sum matrix values
 };

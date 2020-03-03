@@ -17,5 +17,6 @@ class InvalidMatrixSumRow : std::exception {};
 class InvalidMatrixSum : std::exception {};
 class InvalidMatrixAdd : std::exception {};
 class InvalidMatrixResize : std::exception {};
+class InvalidMatrixTranspSize : std::exception {};
 
 class LayerNotFinalValue : std::exception {};

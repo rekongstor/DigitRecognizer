@@ -7,56 +7,83 @@ SimpleNN::SimpleNN(Dataset& _dataset) : dataset(_dataset)
 	InitNN();
 }
 
+uint32_t SimpleNN::AddLayer(Matrix2d& input)
+{
+	layers.push_back(Layer(&layers, input)); // 0: [1x1] 
+	return layers.size() - 1;
+}
+
+uint32_t SimpleNN::AddLayer(uint32_t rows, uint32_t cols)
+{
+	layers.push_back(Layer(&layers, rows, cols)); // 3: [10x1024] 
+	return layers.size() - 1;
+}
+
+uint32_t SimpleNN::AddLayer(uint32_t x, const Layer::Pair_X& func, uint32_t rows, uint32_t cols)
+{
+	layers.push_back(Layer(&layers, x, func, rows, cols)); // 4: [1024x10] 
+	return layers.size() - 1;
+}
+
+uint32_t SimpleNN::AddLayer(uint32_t x, uint32_t y, const Layer::Pair_XY& func, uint32_t rows, uint32_t cols)
+{
+	layers.push_back(Layer(&layers, x, y, func, rows, cols)); // 5: [BSx10]
+	return layers.size() - 1;
+}
+
 void SimpleNN::InitNN()
 {
 	float batch_size_mas[] = { static_cast<float>(BATCH_SIZE) };
 	Matrix2d batch_size(1,1, batch_size_mas);
 
-	float regularization_scale_mas[] = { 0.f };
+	float regularization_scale_mas[] = { 1.f };
 	Matrix2d regularization_scale(1,1, regularization_scale_mas);
 
 	// 0 B = batch_size value
 	// 1 L = labels
 	// 2 I = images
 	// 3 W = weights
-	// 4 M = I x W
-	// 5 E = exp(M)
-	// 6 Es = sum(E)
-	// 7 S = softmax (E/Es)
-	// 8 Lg = Log(S)
-	// 9 GT = ground-truth (Lg*L)
-	// 10 SGT = Sum(GT)
-	// 11 NS
-	// 12 Loss = -SGT/BS
-	// 13 W2 = Pow2(W)
-	// 14 L2 = Sum(W2)
-	// 15 RS = regularization parameter
-	// 16 Reg = RS*L2
-	// 17 F = L2 + Reg
-	layers.push_back(Layer(&layers, batch_size)); // 0: [1x1] 
-	layers.push_back(Layer(&layers, dataset.train_labels[0])); // 1: [BSx10] 
-	layers.push_back(Layer(&layers, dataset.train_images[0])); // 2: [BSx1024] 
-	layers.push_back(Layer(&layers, 1024, 10)); // 3: [1024x10] 
-	layers.push_back(Layer(&layers, 2, 3, Layer::MMul)); // 4:
-	layers.push_back(Layer(&layers, 4, Layer::Exp)); // 5:
-	layers.push_back(Layer(&layers, 5, Layer::SumCol, BATCH_SIZE, 1)); // 6:
-	layers.push_back(Layer(&layers, 5, 6, Layer::RDiv, BATCH_SIZE, 10)); // 7:
-	layers.push_back(Layer(&layers, 7, Layer::Log)); // 8:
-	layers.push_back(Layer(&layers, 1, 8, Layer::SMMul)); // 9:
-	layers.push_back(Layer(&layers, 9, Layer::Sum, 1, 1)); //10:
-	layers.push_back(Layer(&layers, 10, Layer::Neg)); // 11:
-	layers.push_back(Layer(&layers, 11, 0, Layer::SDiv)); // 12: loss function
-	layers.push_back(Layer(&layers, 3, Layer::Pow2)); // 13:
-	layers.push_back(Layer(&layers, 13, Layer::Sum, 1, 1)); // 14:
-	layers.push_back(Layer(&layers, regularization_scale)); // 15: input RS
-	layers.push_back(Layer(&layers, 14, 15, Layer::SMMul)); // 16: регул€ризаци€
-	layers.push_back(Layer(&layers, 12, 16, Layer::MAdd)); // 17: задача оптимизации - уменьшать
-	float m = log(exp(1.f));
+	// 4 WT = transposed weights
+	// 5 M = I x WT
+	// 6 E = exp(M)
+	// 7 Es = sum(E)
+	// 8 S = softmax (E/Es)
+	// 9 Lg = Log(S)
+	// 10 GT = ground-truth (Lg*L)
+	// 11 SGT = Sum(GT)
+	// 12 NS
+	// 13 Loss = -SGT/BS
+	// 14 W2 = Pow2(W)
+	// 15 L2 = Sum(W2)
+	// 16 RS = regularization parameter
+	// 17 Reg = RS*L2
+	// 18 F = L2 + Reg
+	
+	auto B = AddLayer(batch_size); // [1x1] 
+	auto L = AddLayer(dataset.train_labels[0]); // [BSx10] 
+	auto I = AddLayer(dataset.train_images[0]); // [BSx1024] 
+	auto W = AddLayer(RESULT_NEURONS, TEXTURE_SIZE * TEXTURE_SIZE); // [10x1024] 
+	auto WT = AddLayer(W, Layer::Trans, TEXTURE_SIZE * TEXTURE_SIZE, RESULT_NEURONS); // [1024x10] 
+	auto M = AddLayer(I, WT, Layer::MMul); // [BSx10]
+	auto E = AddLayer(M, Layer::Exp); // 6: [BSx10]
+	auto Es = AddLayer(E, Layer::SumCol, BATCH_SIZE, 1); // [BSx1]
+	auto S = AddLayer(E, Es, Layer::RDiv, BATCH_SIZE, 10); // [BSx10]
+	auto Lg = AddLayer(S, Layer::Log); // 9: [BSx10]
+	auto GT = AddLayer(L, Lg, Layer::SMMul); // 10: [BSx10]
+	auto SGT = AddLayer(GT, Layer::Sum, 1, 1); // [1x1]
+	auto NS = AddLayer(SGT, Layer::Neg); // [1x1]
+	auto Loss = AddLayer(NS, 0, Layer::SDiv); // loss function [1x1]
+	auto W2 = AddLayer(WT, Layer::Pow2); // 14: [1024x10]
+	auto L2 = AddLayer(W2, Layer::Sum, 1, 1); // 15: [1x1]
+	auto RS = AddLayer(regularization_scale); // 16: input RS [1x1]
+	auto Reg = AddLayer(L2, RS, Layer::SMMul); // 17: регул€ризаци€ [1x1]
+	auto F = AddLayer(Loss, Reg, Layer::MAdd); // 18: задача оптимизации - уменьшать [1x1]
+
 	for (auto& L : layers)
 		L.F();
 
-	layers[17].dF();
-	layers[3].dF(layers[17].getVal());
+	layers[F].dF();
+	//layers[3].dF(layers[17].getVal());
 
 }
 
