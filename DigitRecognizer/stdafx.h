@@ -21,8 +21,12 @@
 #define LAYER_1_NEURONS 16
 #define LAYER_2_NEURONS 16
 #define RESULT_NEURONS 10 // [0-9]
-#define BATCH_SIZE 100
+#define BATCH_SIZE 2000
 #define DELTA 0.005f
+#define REG_SCALE 350.f
+#define GRAD_STEP .000005f
+#define GRAD_SCALE 64
+#define SAMPLE_TIME 2
 
 float batch_size_mas[];
 float regularization_scale_mas[];

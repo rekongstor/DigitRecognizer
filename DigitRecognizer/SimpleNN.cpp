@@ -2,7 +2,7 @@
 #include "Dataset.h"
 
 float batch_size_mas[] = { static_cast<float>(BATCH_SIZE) };
-float regularization_scale_mas[] = { 10.f };
+float regularization_scale_mas[] = { REG_SCALE };
 
 SimpleNN::SimpleNN(Dataset& _dataset) : dataset(_dataset)
 {
@@ -38,17 +38,24 @@ void SimpleNN::ForwardProp()
 
 void SimpleNN::BackProp()
 {
-	float& f = layers[F].getVal();
-	float y = f + .1f;
-	grad_step = 1.f / 4096.f;
-	while (f < y)
+	for (int i = 0; i < SAMPLE_TIME; ++i)
 	{
-		y = f;
+		float& f = layers[F].getVal();
+		ForwardProp();
+		float y = f;
 		layers[F].dF();
 		layers[W].SubGrad(grad_step);
 		ForwardProp();
+		if (y < f)
+		{
+			layers[W].SubGrad(-grad_step);
+			if (grad_step > GRAD_STEP* pow(.5f, static_cast<float_t>(GRAD_SCALE)))
+				grad_step /= 2.f;
+		}
+		else
+			if (grad_step < GRAD_STEP)
+				grad_step *= 2.f;
 	}
-	layers[W].SubGrad(-grad_step);
 }
 
 uint32_t SimpleNN::AddLayer(Matrix2d& input)
@@ -78,11 +85,11 @@ uint32_t SimpleNN::AddLayer(uint32_t x, uint32_t y, const Layer::Pair_XY& func, 
 void SimpleNN::TrainNN()
 {	
 	size_t offset = 0;
+	grad_step = GRAD_STEP;
 	do
 	{
 		layers[L] = Layer(&layers,dataset.train_labels[offset]);
 		layers[X] = Layer(&layers,dataset.train_images[offset]);
-		ForwardProp();
 		BackProp();
 		offset += 1;
 	} while (offset < TRAIN_SIZE / BATCH_SIZE);
@@ -100,5 +107,4 @@ void SimpleNN::TestNN()
 		valid += layers[S].Test(L);
 		offset += 1;
 	} while (offset < TEST_SIZE / BATCH_SIZE);
-	valid;
 }

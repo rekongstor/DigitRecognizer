@@ -35,7 +35,6 @@ void Layer::F()
 
 void Layer::dF(float& f)
 {
-
 	// numeric
 	if (dL->mx.size() == 0)
 		return;
@@ -43,8 +42,6 @@ void Layer::dF(float& f)
 	for (uint32_t i = 0; i < (*L).mx.size(); ++i)
 	{
 		(*L).mx[i] += DELTA;
-		//for (auto& d : depended)
-		//	(*layers)[d].FollowProp();
 		for (int t = it_self + 1; t < (*layers).size(); ++t)
 			(*layers)[t].F();
 		(*L).mx[i] -= DELTA;
@@ -96,7 +93,7 @@ uint32_t Layer::Test(uint32_t label_layer)
 	for (uint32_t i = 0; i < res.a(); ++i)
 	{
 		float_t max_val = res(i,0);
-		float_t max_ind = 0;
+		uint32_t max_ind = 0;
 		for (uint32_t j = 1; j < res.b(); ++j)
 			if (res(i, j) > max_val)
 			{
@@ -245,6 +242,7 @@ Layer::Layer(std::vector<Layer>* l, uint32_t rows, uint32_t cols):
 	// TODO: randomize
 	for (auto& v : L->mx)
 		v = 0.f;
+		//v = (Random::Float()) * GRAD_STEP;
 }
 
 Layer::Layer(std::vector<Layer>* l, uint32_t x, uint32_t y, const Pair_XY& func, uint32_t rows, uint32_t cols):
