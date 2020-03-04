@@ -26,7 +26,7 @@
 #define REG_SCALE 350.f
 #define GRAD_STEP .000005f
 #define GRAD_SCALE 64
-#define SAMPLE_TIME 2
+#define SAMPLE_TIME 1
 
 float batch_size_mas[];
 float regularization_scale_mas[];

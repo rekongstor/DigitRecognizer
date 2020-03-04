@@ -107,4 +107,6 @@ void SimpleNN::TestNN()
 		valid += layers[S].Test(L);
 		offset += 1;
 	} while (offset < TEST_SIZE / BATCH_SIZE);
+	std::ofstream out("out.txt");
+	out << valid;
 }
