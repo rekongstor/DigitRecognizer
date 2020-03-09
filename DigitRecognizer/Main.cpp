@@ -6,21 +6,18 @@ main с загрузкой датасета в память
 #include "Window.h"
 #include "SimpleNN.h"
 
-Dataset data("train-labels.idx1-ubyte", "train-images.idx3-ubyte", "t10k-labels.idx1-ubyte", "t10k-images.idx3-ubyte");	
+IDigitRecognizer* DR = nullptr;
+
 
 INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int iCmdShow)
 {
+	
+	Dataset data("train-labels.idx1-ubyte", "train-images.idx3-ubyte", "t10k-labels.idx1-ubyte", "t10k-images.idx3-ubyte");
+	SimpleNN simple_dr(data);	
+	IDigitRecognizer* DR = &simple_dr;
 
-	std::vector<IDigitRecognizer*> drs;
-
-	SimpleNN simple_dr(data);
-	drs.push_back(&simple_dr);
-
-	for (auto& it : drs)
-	{
-		it->TrainNN();
-		it->TestNN();
-	}
+	DR->TrainNN();
+	DR->TestNN();
 	
 
 

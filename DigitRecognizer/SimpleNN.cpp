@@ -40,7 +40,7 @@ void SimpleNN::BackProp()
 {
 	for (int i = 0; i < SAMPLE_TIME; ++i)
 	{
-		float& f = layers[F].getVal();
+		float& f = *layers[F].getL();
 		ForwardProp();
 		float y = f;
 		layers[F].dF();
@@ -92,10 +92,11 @@ void SimpleNN::TrainNN()
 		layers[X] = Layer(&layers,dataset.train_images[offset]);
 		BackProp();
 		offset += 1;
-	} while (offset < TRAIN_SIZE / BATCH_SIZE);
+	} while (0);
+	//} while (offset < TRAIN_SIZE / BATCH_SIZE);
 }
 
-void SimpleNN::TestNN()
+float_t SimpleNN::TestNN()
 {
 	size_t offset = 0;
 	uint32_t valid = 0;
@@ -106,5 +107,12 @@ void SimpleNN::TestNN()
 		ForwardProp();
 		valid += layers[S].Test(L);
 		offset += 1;
-	} while (offset < TEST_SIZE / BATCH_SIZE);
+	} while (0);
+	//} while (offset < TEST_SIZE / BATCH_SIZE);
+	return static_cast<float>(valid) / static_cast<float>(TEST_SIZE);
+}
+
+float_t* SimpleNN::GetWeights()
+{
+	return layers[W].getL();
 }

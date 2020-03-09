@@ -69,7 +69,7 @@ public:
 	void dF(float& f); // численное вычисление
 	void dF(); // аналитическое back propagation вычисление
 	void SubGrad(float_t step);
-	float& getVal();
+	float* getL();
 	uint32_t Test(uint32_t label_layer);
 	
 	Layer(const Layer& l);

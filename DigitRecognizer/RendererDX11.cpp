@@ -4,10 +4,17 @@
 #pragma comment (lib, "d3d11.lib")
 
 
-IDXGISwapChain* swapchain;             // the pointer to the swap chain interface
-ID3D11Device* dev;                     // the pointer to our Direct3D device interface
-ID3D11DeviceContext* devcon;           // the pointer to our Direct3D device context	
-ID3D11RenderTargetView* backbuffer;    // the pointer to our back buffer
+struct Vertex
+{
+	DirectX::XMFLOAT4 Pos;
+};
+
+
+static IDXGISwapChain* s_pSwapchain							= nullptr;
+static ID3D11Device*s_pDevice								= nullptr;
+static ID3D11DeviceContext* s_pContext						= nullptr;
+static ID3D11Texture2D* s_pBackbuffer						= nullptr;
+static ID3D11RenderTargetView* s_pRenderTargetView			= nullptr;
 
 
 void RendererDX11::OnInit(HWND__* hWnd)
@@ -36,24 +43,23 @@ void RendererDX11::OnInit(HWND__* hWnd)
 		NULL,
 		D3D11_SDK_VERSION,
 		&scd,
-		&swapchain,
-		&dev,
+		&s_pSwapchain,
+		&s_pDevice,
 		NULL,
-		&devcon);
+		&s_pContext);
 
 
 	// get the address of the back buffer
-	ID3D11Texture2D* pBackBuffer = nullptr;
-	swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
-	if (pBackBuffer == nullptr)
+	s_pSwapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&s_pBackbuffer);
+	if (s_pBackbuffer == nullptr)
 		throw (RendererDX11EX());
 
-	dev->CreateRenderTargetView(pBackBuffer, NULL, &backbuffer);
+	s_pDevice->CreateRenderTargetView(s_pBackbuffer, NULL, &s_pRenderTargetView);
 	// use the back buffer address to create the render target
-	pBackBuffer->Release();
+	s_pBackbuffer->Release();
 
 	// set the render target as the back buffer
-	devcon->OMSetRenderTargets(1, &backbuffer, NULL);
+	s_pContext->OMSetRenderTargets(1, &s_pRenderTargetView, NULL);
 
 
 	// Set the viewport
@@ -65,25 +71,25 @@ void RendererDX11::OnInit(HWND__* hWnd)
 	viewport.Width = 800;
 	viewport.Height = 600;
 
-	devcon->RSSetViewports(1, &viewport);
+	s_pContext->RSSetViewports(1, &viewport);
 }
 
 void RendererDX11::OnUpdate()
 {
 	// clear the back buffer to a deep blue
 	float color[] = { 0.0f, 0.2f, 0.4f, 1.0f };
-	devcon->ClearRenderTargetView(backbuffer, color);
+	s_pContext->ClearRenderTargetView(s_pRenderTargetView, color);
 
 	// do 3D rendering on the back buffer here
 
 	// switch the back buffer and the front buffer
-	swapchain->Present(0, 0);
+	s_pSwapchain->Present(0, 0);
 }
 
 void RendererDX11::OnStop()
 {
-	swapchain->Release();
-	backbuffer->Release();
-	dev->Release();
-	devcon->Release();
+	s_pSwapchain->Release();
+	s_pRenderTargetView->Release();
+	s_pDevice->Release();
+	s_pContext->Release();
 }

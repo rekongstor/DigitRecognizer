@@ -10,6 +10,7 @@
 #include <array>
 #include <functional>
 #include <queue>
+#include <DirectXMath.h>
 
 #include "Exceptions.h"
 #include "Random.h"
@@ -30,3 +31,5 @@
 
 float batch_size_mas[];
 float regularization_scale_mas[];
+class IDigitRecognizer;
+extern IDigitRecognizer* DR;

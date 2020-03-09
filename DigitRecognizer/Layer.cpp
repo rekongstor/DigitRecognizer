@@ -73,12 +73,11 @@ void Layer::SubGrad(float_t step)
 		L->mx[i] += step*dL->mx[i];
 }
 
-float& Layer::getVal()
+float* Layer::getL()
 {
-	if ((depended.size() != 0) || ((*L).mx.size() != 1))
-		throw LayerNotFinalValue();
-
-	return (*L).mx[0];
+	if ((*L).mx.size() == 0)
+		return nullptr;
+	return (*L).mx.data();
 }
 
 uint32_t Layer::Test(uint32_t label_layer)
