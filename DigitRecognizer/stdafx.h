@@ -24,9 +24,9 @@
 #define RESULT_NEURONS 10 // [0-9]
 #define BATCH_SIZE 2000
 #define DELTA 0.005f
-#define REG_SCALE 350.f
-#define GRAD_STEP .000005f
-#define GRAD_SCALE 64
+#define REG_SCALE 1500.f
+#define GRAD_STEP .00004f
+#define GRAD_SCALE 16
 #define SAMPLE_TIME 1
 
 float batch_size_mas[];

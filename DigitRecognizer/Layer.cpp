@@ -69,8 +69,14 @@ void Layer::dF()
 
 void Layer::SubGrad(float_t step)
 {
+	// get gradient L2
+	float_t l = 0.f;
 	for (size_t i = 0; i < L->mx.size(); ++i)
-		L->mx[i] += step*dL->mx[i];
+		l += dL->mx[i] * dL->mx[i];
+	l = sqrt(l);
+
+	for (size_t i = 0; i < L->mx.size(); ++i)
+		L->mx[i] += step * dL->mx[i] / l;
 }
 
 float* Layer::getL()
