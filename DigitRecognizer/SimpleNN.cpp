@@ -92,8 +92,8 @@ void SimpleNN::TrainNN()
 		layers[X] = Layer(&layers,dataset.train_images[offset]);
 		BackProp();
 		offset += 1;
-	//} while (0);
-	} while (offset < TRAIN_SIZE / BATCH_SIZE);
+	} while (0);
+	//} while (offset < TRAIN_SIZE / BATCH_SIZE);
 }
 
 float_t SimpleNN::TestNN()
@@ -107,8 +107,8 @@ float_t SimpleNN::TestNN()
 		ForwardProp();
 		valid += layers[S].Test(L);
 		offset += 1;
-	//} while (0);
-	} while (offset < TEST_SIZE / BATCH_SIZE);
+	} while (0);
+	//} while (offset < TEST_SIZE / BATCH_SIZE);
 	return static_cast<float>(valid) / static_cast<float>(TEST_SIZE);
 }
 

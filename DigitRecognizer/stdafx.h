@@ -28,6 +28,8 @@
 #define GRAD_STEP .00004f
 #define GRAD_SCALE 16
 #define SAMPLE_TIME 1
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 600
 
 float batch_size_mas[];
 float regularization_scale_mas[];
