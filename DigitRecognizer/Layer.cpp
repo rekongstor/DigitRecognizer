@@ -312,14 +312,25 @@ void Layer::FMMul(Layer* l, Layer* r)
 	auto& y = *r->L;
 	if (x.b() != y.a())
 		throw InvalidMatrixMul();
-
-	for (uint32_t i = 0; i < (*L).a(); ++i)
-		for (uint32_t j = 0; j < (*L).b(); ++j)
-		{
-			(*L)(i,j) = 0.f;
-			for (uint32_t v = 0; v < x.b(); ++v)
-				(*L)(i,j) += x(i,v) * y(v,j);
-		}
+	auto lam = [&](int t, int s) {
+		for (uint32_t i = t; i < t + s; ++i)
+			for (uint32_t j = 0; j < (*L).b(); ++j)
+			{
+				(*L)(i, j) = 0.f;
+				for (uint32_t v = 0; v < x.b(); ++v)
+					(*L)(i, j) += x(i, v) * y(v, j);
+			}
+	};
+	int s = (*L).a() / thread_count; // workgroup size
+	std::vector<std::thread> ths;
+	for (int i = 0; i < thread_count - 1; ++i)
+	{
+		// create thread
+		ths.push_back(std::thread(lam, i * s, s));
+	}
+	ths.push_back(std::thread(lam, (thread_count - 1) * s, s + ((*L).a() % s)));
+	for (auto& t : ths)
+		t.join();
 }
 
 void Layer::dFMMul(Layer* l, Layer* r)
@@ -332,20 +343,44 @@ void Layer::dFMMul(Layer* l, Layer* r)
 		Matrix2d* dl = l->dL; // [a x b]
 		auto& x = *dL; // [a x c]
 		auto& y = *r->L; // [b x c]
-		for (uint32_t i = 0; i < (*dl).a(); ++i) // a
-			for (uint32_t j = 0; j < (*dl).b(); ++j) // b
-				for (uint32_t k = 0; k < y.b(); ++k) // c
-					(*dl)(i, j) += x(i, k) * y(j, k);
+		auto lam = [&](int t, int s) {
+			for (uint32_t i = t; i < t + s; ++i) // a
+				for (uint32_t j = 0; j < (*dl).b(); ++j) // b
+					for (uint32_t k = 0; k < y.b(); ++k) // c
+						(*dl)(i, j) += x(i, k) * y(j, k);
+		};
+		int s = (*L).a() / thread_count; // workgroup size
+		std::vector<std::thread> ths;
+		for (int i = 0; i < thread_count - 1; ++i)
+		{
+			// create thread
+			ths.push_back(std::thread(lam, i * s, s));
+		}
+		ths.push_back(std::thread(lam, (thread_count - 1) * s, s + ((*L).a() % thread_count)));
+		for (auto& t : ths)
+			t.join();
 	}
 	if (r->needs_grad) // dF/dl = lT * grad
 	{
 		Matrix2d* dl = r->dL; // [b x c]
 		auto& x = *l->L; // [a x b]
 		auto& y = *dL; // [a x c]
-		for (uint32_t i = 0; i < (*dl).a(); ++i) // b
-			for (uint32_t j = 0; j < (*dl).b(); ++j) // c
-				for (uint32_t k = 0; k < y.a(); ++k) // a
-					(*dl)(i, j) += x(k, i) * y(k, j);
+		auto lam = [&](int t, int s) {
+			for (uint32_t i = t; i < t + s; ++i) // b
+				for (uint32_t j = 0; j < (*dl).b(); ++j) // c
+					for (uint32_t k = 0; k < y.a(); ++k) // a
+						(*dl)(i, j) += x(k, i) * y(k, j);
+		};
+		int s = (*L).a() / thread_count; // workgroup size
+		std::vector<std::thread> ths;
+		for (int i = 0; i < thread_count - 1; ++i)
+		{
+			// create thread
+			ths.push_back(std::thread(lam, i * s, s));
+		}
+		ths.push_back(std::thread(lam, (thread_count - 1) * s, s + ((*L).a() % thread_count)));
+		for (auto& t : ths)
+			t.join();
 	}
 }
 

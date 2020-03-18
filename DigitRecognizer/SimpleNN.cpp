@@ -45,7 +45,7 @@ void SimpleNN::BackProp()
 		float y = f;
 		layers[F].dF();
 		layers[W].SubGrad(grad_step);
-		ForwardProp();
+		//ForwardProp();
 		//if (y < f)
 		//{
 		//	layers[W].SubGrad(-grad_step);
