@@ -28,4 +28,4 @@ Image Recognizer - Распознавание цифр
 * ООП
 
 ## Preview
-![Preview](https://github.com/rekongstor/MetOp-Proj/blob/master/preview.png)
+![Preview](https://github.com/rekongstor/DigitRecognizer/blob/master/preview.png)
