@@ -45,8 +45,8 @@ int Window::OnInit(HINSTANCE hInstance, HINSTANCE, PSTR, INT iCmdShow)
 		WS_OVERLAPPED | WS_SYSMENU,      // window style
 		CW_USEDEFAULT,            // initial x position
 		CW_USEDEFAULT,            // initial y position
-		800,  // initial x size
-		600,  // initial y size
+		SCREEN_WIDTH,  // initial x size
+		SCREEN_HEIGHT / 0.935f,  // initial y size
 		NULL,                     // parent window handle
 		NULL,                     // window menu handle
 		hInstance,                // program instance handle
@@ -58,10 +58,15 @@ int Window::OnInit(HINSTANCE hInstance, HINSTANCE, PSTR, INT iCmdShow)
 
 	Renderer::OnInit(hWnd);
 	UpdateWindow(hWnd);
-	while (GetMessage(&msg, NULL, 0, 0))
+	while (true)
 	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
+		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+			if (msg.message == WM_QUIT)
+				break;
+		}
 		Renderer::OnUpdate();
 	}
 	Renderer::OnStop();
