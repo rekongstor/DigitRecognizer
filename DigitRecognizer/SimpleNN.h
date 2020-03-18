@@ -22,7 +22,7 @@ class SimpleNN : public IDigitRecognizer
 	uint32_t AddLayer(uint32_t x, const Layer::Pair_X& func, uint32_t rows = 0, uint32_t cols = 0); // L = f(x)
 	uint32_t AddLayer(uint32_t x, uint32_t y, const Layer::Pair_XY& func, uint32_t rows = 0, uint32_t cols = 0); // L = f(x,y)
 	// Inherited via IDigitRecognizer
-	virtual void TrainNN() override;
+	virtual float_t TrainNN() override;
 	virtual float_t TestNN() override;
 	virtual float_t* GetWeights() override;
 

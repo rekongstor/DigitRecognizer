@@ -46,15 +46,15 @@ void SimpleNN::BackProp()
 		layers[F].dF();
 		layers[W].SubGrad(grad_step);
 		ForwardProp();
-		if (y < f)
-		{
-			layers[W].SubGrad(-grad_step);
-			if (grad_step > GRAD_STEP* pow(.5f, static_cast<float_t>(GRAD_SCALE)))
-				grad_step /= 2.f;
-		}
-		else
-			if (grad_step < GRAD_STEP)
-				grad_step *= 2.f;
+		//if (y < f)
+		//{
+		//	layers[W].SubGrad(-grad_step);
+		//	if (grad_step > GRAD_STEP* pow(.5f, static_cast<float_t>(GRAD_SCALE)))
+		//		grad_step /= 2.f;
+		//}
+		//else
+		//	if (grad_step < GRAD_STEP)
+		//		grad_step *= 2.f;
 	}
 }
 
@@ -82,9 +82,9 @@ uint32_t SimpleNN::AddLayer(uint32_t x, uint32_t y, const Layer::Pair_XY& func, 
 	return static_cast<uint32_t>(layers.size() - 1);
 }
 
-void SimpleNN::TrainNN()
+float_t SimpleNN::TrainNN()
 {	
-	size_t offset = 0;
+	static size_t offset = 0;
 	grad_step = GRAD_STEP;
 	do
 	{
@@ -93,6 +93,9 @@ void SimpleNN::TrainNN()
 		BackProp();
 		offset += 1;
 	} while (0);
+	if (offset < TRAIN_SIZE / BATCH_SIZE)
+		offset = 0;
+	return *layers[F].getL();
 	//} while (offset < TRAIN_SIZE / BATCH_SIZE);
 }
 
@@ -107,8 +110,8 @@ float_t SimpleNN::TestNN()
 		ForwardProp();
 		valid += layers[S].Test(L);
 		offset += 1;
-	} while (0);
-	//} while (offset < TEST_SIZE / BATCH_SIZE);
+	//} while (0);
+	} while (offset < TEST_SIZE / BATCH_SIZE);
 	return static_cast<float>(valid) / static_cast<float>(TEST_SIZE);
 }
 

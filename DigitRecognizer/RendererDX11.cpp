@@ -1,4 +1,6 @@
 #include "RendererDX11.h"
+#include "DigitRecognizer.h"
+
 
 #include <d3d11.h>
 #include <d3dcompiler.h>
@@ -100,7 +102,7 @@ void RendererDX11::OnInit(HWND__* hWnd)
 	for (int i = 0; i < SCREEN_WIDTH; ++i)
 	{
 		OurVertices[i].Pos.x = -1.f + static_cast<float_t>(i) / static_cast<float_t>(SCREEN_WIDTH) * 2.f;
-		OurVertices[i].Pos.y = 0.f;
+		OurVertices[i].Pos.y = -1.f;
 		OurVertices[i].Pos.z = 0.f;
 		OurVertices[i].Pos.w = 1.f;
 	}
@@ -125,7 +127,8 @@ void RendererDX11::OnInit(HWND__* hWnd)
 
 void RendererDX11::OnUpdate()
 {
-	static int current_x = 0;
+	static int32_t current_x = 0;
+	static float_t max_y = 1.f;
 	// clear the back buffer to a deep blue
 	float color[] = { 0.0f, 0.2f, 0.4f, 1.0f };
 	s_pContext->ClearRenderTargetView(s_pRenderTargetView, color);
@@ -133,8 +136,9 @@ void RendererDX11::OnUpdate()
 	D3D11_MAPPED_SUBRESOURCE ms;
 	s_pContext->Map(s_pVBuffer, NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);   // map the buffer
 
-	//
-	OurVertices[current_x].Pos.y = sin(static_cast<float_t>(current_x) / static_cast<float_t>(SCREEN_WIDTH) * 6.28f);
+	float_t value = DR->TestNN();
+	DR->TrainNN();
+	OurVertices[current_x].Pos.y = (value * 2.f - 1.f); //sin(static_cast<float_t>(current_x) / static_cast<float_t>(SCREEN_WIDTH) * 6.28f) / 2.f + .5f;
 
 	++current_x;
 	if (current_x == SCREEN_WIDTH)

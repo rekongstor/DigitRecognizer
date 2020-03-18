@@ -26,3 +26,6 @@ Image Recognizer - Распознавание цифр
 * DirectX
 * OpenGL
 * ООП
+
+## Preview
+![Preview](https://github.com/rekongstor/MetOp-Proj/blob/master/preview.png)
