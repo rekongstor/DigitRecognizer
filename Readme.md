@@ -1,4 +1,4 @@
-Image Recognizer - Распознавание цифр
+Digit Recognizer - Распознавание цифр
 ==========================
 
 ## General
