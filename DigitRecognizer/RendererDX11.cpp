@@ -229,7 +229,6 @@ void RendererDX11::OnUpdate()
 {
 	static int32_t current_x = 0;
 	static float_t max_y = 1.f;
-	++current_x;
 	// clear the back buffer to a deep blue
 	float color[] = { 0.0f, 0.2f, 0.4f, 1.0f };
 	s_pContext->ClearRenderTargetView(s_pRenderTargetView, color);
@@ -284,12 +283,13 @@ void RendererDX11::OnUpdate()
 		DR->TrainNN();
 		OurVertices[current_x].Pos.y = (value * 2.f - 1.f); //sin(static_cast<float_t>(current_x) / static_cast<float_t>(SCREEN_WIDTH) * 6.28f) / 2.f + .5f;
 
-		if (current_x >= SCREEN_WIDTH - 100)
-			current_x = 0;
 		memcpy(ms.pData, OurVertices, sizeof(OurVertices));                // copy the data
 		s_pContext->Unmap(s_pVBuffer, NULL);                                     // unmap the buffer
 		s_pContext->Draw(current_x, 0);
 	}
+	++current_x;
+	if (current_x >= SCREEN_WIDTH - 100)
+		current_x = 0;
 	// switch the back buffer and the front buffer
 	s_pSwapchain->Present(0, 0);
 }
