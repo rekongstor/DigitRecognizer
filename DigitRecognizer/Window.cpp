@@ -46,7 +46,7 @@ int Window::OnInit(HINSTANCE hInstance, HINSTANCE, PSTR, INT iCmdShow)
 		CW_USEDEFAULT,            // initial x position
 		CW_USEDEFAULT,            // initial y position
 		SCREEN_WIDTH,  // initial x size
-		SCREEN_HEIGHT / 0.935f,  // initial y size
+		static_cast<int32_t>(static_cast<float_t>(SCREEN_HEIGHT) / 0.935f),  // initial y size
 		NULL,                     // parent window handle
 		NULL,                     // window menu handle
 		hInstance,                // program instance handle

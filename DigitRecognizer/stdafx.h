@@ -10,6 +10,7 @@
 #include <array>
 #include <functional>
 #include <queue>
+#include <thread>
 #include <DirectXMath.h>
 
 #include "Exceptions.h"
@@ -35,3 +36,4 @@ float batch_size_mas[];
 float regularization_scale_mas[];
 class IDigitRecognizer;
 extern IDigitRecognizer* DR;
+extern const uint32_t thread_count;
