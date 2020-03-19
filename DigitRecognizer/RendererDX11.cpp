@@ -24,8 +24,9 @@ static ID3D11PixelShader* s_pPS								= nullptr;
 static ID3D11Buffer* s_pVBuffer								= nullptr;
 static ID3D11InputLayout* s_pLayout							= nullptr;
 
-Vertex OurVertices[SCREEN_WIDTH];
-Vertex* ov;
+static Vertex OurVertices[SCREEN_WIDTH];
+static Vertex* ov;
+static HWND hW;
 
 void RendererDX11::OnInit(HWND__* hWnd)
 {
@@ -34,7 +35,7 @@ void RendererDX11::OnInit(HWND__* hWnd)
 
 	// clear out the struct for use
 	ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
-
+	hW = hWnd;
 	// fill the swap chain description struct
 	scd.BufferCount = 1;                                    // one back buffer
 	scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;     // use 32-bit color
@@ -137,6 +138,8 @@ void RendererDX11::OnUpdate()
 	s_pContext->Map(s_pVBuffer, NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);   // map the buffer
 
 	float_t value = DR->TestNN();
+	std::string winName("DigitRecognizer: " + std::to_string(value));
+	SetWindowTextA(hW,winName.c_str());
 	DR->TrainNN();
 	OurVertices[current_x].Pos.y = (value * 2.f - 1.f); //sin(static_cast<float_t>(current_x) / static_cast<float_t>(SCREEN_WIDTH) * 6.28f) / 2.f + .5f;
 

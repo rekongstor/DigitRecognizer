@@ -89,7 +89,7 @@ inline void Dataset::LoadData(const char* file, std::vector<Matrix2d>& set, int3
 						Read<>(input_data, tmp_pixel, needsEndianConver);
 						set[i](b, u* TEXTURE_SIZE + v) = static_cast<float_t>(tmp_pixel) / 255.f;
 					}
-				set[i](b,TEXTURE_SIZE* TEXTURE_SIZE - 1) = 0.f; // избавляемся от bias
+				set[i](b,TEXTURE_SIZE* TEXTURE_SIZE - 1) = 1.f; // избавляемся от bias
 			}
 		}
 	}
