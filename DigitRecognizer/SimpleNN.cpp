@@ -17,7 +17,7 @@ SimpleNN::SimpleNN(Dataset& _dataset) : dataset(_dataset)
 	auto M = AddLayer(X, WT, Layer::MMul);												// [BSx10]									// 5 M = I x WT
 	auto E = AddLayer(M, Layer::Exp);													// [BSx10]									// 6 E = exp(M)
 	auto Es = AddLayer(E, Layer::SumCol, BATCH_SIZE, 1);								// [BSx1]									// 7 Es = sum(E)
-	S = AddLayer(E, Es, Layer::RDiv, BATCH_SIZE, 10);								// [BSx10]									// 8 S = softmax (E/Es)
+	S = AddLayer(E, Es, Layer::RDiv, BATCH_SIZE, 10);									// [BSx10]									// 8 S = softmax (E/Es)
 	auto Lg = AddLayer(S, Layer::Log);													// [BSx10]									// 9 Lg = Log(S)
 	auto GT = AddLayer(L, Lg, Layer::SMMul);											// [BSx10]									// 10 GT = ground-truth (Lg*L)
 	auto SGT = AddLayer(GT, Layer::Sum, 1, 1);											// [1x1]									// 11 SGT = Sum(GT)
@@ -28,6 +28,8 @@ SimpleNN::SimpleNN(Dataset& _dataset) : dataset(_dataset)
 	auto RS = AddLayer(regularization_scale);											// input RS [1x1]							// 16 RS = regularization parameter
 	auto Reg = AddLayer(L2, RS, Layer::SMMul);											// регул€ризаци€ [1x1]						// 17 Reg = RS*L2
 	F = AddLayer(Loss, Reg, Layer::MAdd);												// задача оптимизации - уменьшать [1x1]		// 18 F = L2 + Reg
+
+	grad_step = GRAD_STEP;
 }
 
 void SimpleNN::ForwardProp()
@@ -45,16 +47,16 @@ void SimpleNN::BackProp()
 		float y = f;
 		layers[F].dF();
 		layers[W].SubGrad(grad_step);
-		//ForwardProp();
-		//if (y < f)
-		//{
-		//	layers[W].SubGrad(-grad_step);
-		//	if (grad_step > GRAD_STEP* pow(.5f, static_cast<float_t>(GRAD_SCALE)))
-		//		grad_step /= 2.f;
-		//}
-		//else
-		//	if (grad_step < GRAD_STEP)
-		//		grad_step *= 2.f;
+		ForwardProp();
+		if (y < f)
+		{
+			//layers[W].SubGrad(-grad_step);
+			if (grad_step > GRAD_STEP* pow(.5f, static_cast<float_t>(GRAD_SCALE)))
+				grad_step /= 2.f;
+		}
+		else
+			if (grad_step < GRAD_STEP)
+				grad_step *= 2.f;
 	}
 }
 
@@ -85,7 +87,7 @@ uint32_t SimpleNN::AddLayer(uint32_t x, uint32_t y, const Layer::Pair_XY& func, 
 float_t SimpleNN::TrainNN()
 {	
 	static size_t offset = 0;
-	grad_step = GRAD_STEP;
+	
 	do
 	{
 		layers[L] = Layer(&layers,dataset.train_labels[offset]);

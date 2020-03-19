@@ -154,6 +154,8 @@ void Layer::BackProp(std::queue<size_t>& q)
 
 void Layer::ClearGrad()
 {
+	for (auto v : dL->mx)
+		v = 0.f;
 	grad_done = false;
 	if (it_1 != -1)
 		(*layers)[it_1].ClearGrad();
@@ -245,9 +247,11 @@ Layer::Layer(std::vector<Layer>* l, uint32_t rows, uint32_t cols):
 	L_self.Init(rows, cols);
 	dL_self.Init(rows, cols);
 	// TODO: randomize
+	//for (int i = 0; i < L->mx.size(); ++i)
+	//	(*L).mx[i] = Random::Float();
 	for (auto& v : L->mx)
-		v = 0.f;
-		//v = (Random::Float()) * GRAD_STEP;
+		//v = 0.f;
+		v = (Random::Float() - .5f) * 2.f * GRAD_STEP;
 }
 
 Layer::Layer(std::vector<Layer>* l, uint32_t x, uint32_t y, const Pair_XY& func, uint32_t rows, uint32_t cols):
@@ -349,14 +353,14 @@ void Layer::dFMMul(Layer* l, Layer* r)
 					for (uint32_t k = 0; k < y.b(); ++k) // c
 						(*dl)(i, j) += x(i, k) * y(j, k);
 		};
-		int s = (*L).a() / thread_count; // workgroup size
+		int s = (*dl).a() / thread_count; // workgroup size
 		std::vector<std::thread> ths;
 		for (uint32_t i = 0; i < thread_count - 1; ++i)
 		{
 			// create thread
 			ths.push_back(std::thread(lam, i * s, s));
 		}
-		ths.push_back(std::thread(lam, (thread_count - 1) * s, s + ((*L).a() % thread_count)));
+		ths.push_back(std::thread(lam, (thread_count - 1) * s, s + ((*dl).a() % thread_count)));
 		for (auto& t : ths)
 			t.join();
 	}
@@ -371,14 +375,14 @@ void Layer::dFMMul(Layer* l, Layer* r)
 					for (uint32_t k = 0; k < y.a(); ++k) // a
 						(*dl)(i, j) += x(k, i) * y(k, j);
 		};
-		int s = (*L).a() / thread_count; // workgroup size
+		int s = (*dl).a() / thread_count; // workgroup size
 		std::vector<std::thread> ths;
 		for (uint32_t i = 0; i < thread_count - 1; ++i)
 		{
 			// create thread
 			ths.push_back(std::thread(lam, i * s, s));
 		}
-		ths.push_back(std::thread(lam, (thread_count - 1) * s, s + ((*L).a() % thread_count)));
+		ths.push_back(std::thread(lam, (thread_count - 1) * s, s - ((*L).a() % thread_count)));
 		for (auto& t : ths)
 			t.join();
 	}
@@ -393,7 +397,7 @@ void Layer::FMAdd(Layer* l, Layer* r)
 		throw InvalidMatrixAdd();
 
 	for (size_t i = 0; i < (*L).mx.size(); ++i)
-		L->mx[i] = x.mx[i] + y.mx[0];
+		L->mx[i] = x.mx[i] + y.mx[i];
 }
 
 void Layer::dFMAdd(Layer* l, Layer* r)
