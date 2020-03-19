@@ -246,20 +246,20 @@ void RendererDX11::OnUpdate()
 		s_pContext->PSSetSamplers(0, 1, &s_pSampler);
 
 		float_t* tex = DR->GetWeights();
-		std::vector<float_t> copy;
+		std::array<float_t,10*1024> copy;
 		float_t min = tex[0];
 		float_t max = tex[0];
 
 		for (size_t i = 0; i < 10 * 1024; ++i)
 		{
-			copy.push_back(tex[i]);
+			copy[i] = tex[i];
 			if (tex[i] > max)
 				max = tex[i];
 			if (tex[i] < min)
 				min = tex[i];
 		}
 		for (auto& m : copy)
-			m = (m + min) / (max - min) * 1.f;
+			m = (m - min) / (max - min);
 
 		D3D11_MAPPED_SUBRESOURCE msT;
 		s_pContext->Map(s_pTexResourceStaging, NULL, D3D11_MAP_WRITE_DISCARD, NULL, &msT);   // map the buffer
