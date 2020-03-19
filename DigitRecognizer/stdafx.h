@@ -23,9 +23,9 @@
 #define LAYER_1_NEURONS 16
 #define LAYER_2_NEURONS 16
 #define RESULT_NEURONS 10 // [0-9]
-#define BATCH_SIZE 1000
+#define BATCH_SIZE 2000
 #define DELTA 0.005f
-#define REG_SCALE -1.f
+#define REG_SCALE -100000000.00f
 #define GRAD_STEP .0001f
 #define GRAD_SCALE 64
 #define SAMPLE_TIME 1
