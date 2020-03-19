@@ -67,6 +67,53 @@ void Layer::dF()
 	}
 }
 
+
+void Layer::BackProp(std::queue<size_t>& q)
+{
+	if (!needs_grad)
+		return;
+	//if (it_1 != -1)
+	//	if (!(*layers)[it_1].grad_done)
+	//	{
+	//		//for (auto& v : (*layers)[it_1].dL->mx)
+	//		//	v = 0.f;
+	//		grad_done = true;
+	//	}
+	//if (it_2 != -1)
+	//	if (!(*layers)[it_2].grad_done)
+	//		if (!(*layers)[it_1].grad_done)
+	//		{
+	//			//for (auto& v : (*layers)[it_1].dL->mx)
+	//			//	v = 0.f;
+	//			grad_done = true;
+	//		}
+
+	// расчитать dF1 и dF2 
+	if (dfunc_1 != nullptr)
+		(this->*dfunc_1)(&(*layers)[it_1]);
+
+	if (dfunc_2 != nullptr)
+		(this->*dfunc_2)(&(*layers)[it_1], &(*layers)[it_2]);
+
+	if (it_1 != -1)
+		q.push(it_1);
+	if (it_2 != -1)
+		q.push(it_2);
+}
+
+void Layer::ClearGrad()
+{
+	if (needs_grad)
+		for (auto& v : dL->mx)
+			v = 0.f;
+	//grad_done = false;
+	if (it_1 != -1)
+		(*layers)[it_1].ClearGrad();
+	if (it_2 != -1)
+		(*layers)[it_2].ClearGrad();
+}
+
+
 void Layer::SubGrad(float_t step)
 {
 	// get gradient L2
@@ -117,50 +164,6 @@ void Layer::FollowProp()
 	F();
 	for (auto& d : depended)
 		(*layers)[d].FollowProp();
-}
-
-void Layer::BackProp(std::queue<size_t>& q)
-{
-	if (!needs_grad)
-		return;
-	if (it_1 != -1)
-		if (!(*layers)[it_1].grad_done)
-		{
-			for (auto& v : (*layers)[it_1].dL->mx)
-				v = 0.f;
-			grad_done = true;
-		}
-	if (it_2 != -1)
-		if (!(*layers)[it_2].grad_done)
-			if (!(*layers)[it_1].grad_done)
-			{
-				for (auto& v : (*layers)[it_1].dL->mx)
-					v = 0.f;
-				grad_done = true;
-			}
-
-	// расчитать dF1 и dF2 
-	if (dfunc_1 != nullptr)
-		(this->*dfunc_1)(&(*layers)[it_1]);
-
-	if (dfunc_2 != nullptr)
-		(this->*dfunc_2)(&(*layers)[it_1], &(*layers)[it_2]);
-
-	if (it_1 != -1)
-		q.push(it_1);
-	if (it_2 != -1)
-		q.push(it_2);
-}
-
-void Layer::ClearGrad()
-{
-	for (auto v : dL->mx)
-		v = 0.f;
-	grad_done = false;
-	if (it_1 != -1)
-		(*layers)[it_1].ClearGrad();
-	if (it_2 != -1)
-		(*layers)[it_2].ClearGrad();
 }
 
 Layer::Layer(const Layer& l):
@@ -460,17 +463,17 @@ void Layer::FSDiv(Layer* l, Layer* r)
 
 void Layer::dFSDiv(Layer* l, Layer* r)
 {
-	if (l->needs_grad) // dF(i,j)/dl(i,j) = 1 / r(i,j)
+	if (l->needs_grad) // dF(i,j)/dl(i,j) = 1 / r(0,0)
 	{
 		Matrix2d* dl = l->dL;
 		for (size_t i = 0; i < dl->mx.size(); ++i)
-			dl->mx[i] += dL->mx[i] / r->L->mx[i]; 
+			dl->mx[i] += dL->mx[i] / r->L->mx[0]; 
 	}
-	if (r->needs_grad) // dF(i,j)/dl(i,j) = - r(i,j) / (l(i,j)^2)
+	if (r->needs_grad) // dF(i,j)/dl(i,j) = - l(i,j) / (r(0,0)^2)
 	{
 		Matrix2d* dl = r->dL;
 		for (size_t i = 0; i < dl->mx.size(); ++i)
-			dl->mx[i] += - dL->mx[i] * l->L->mx[i] / (r->L->mx[i] * r->L->mx[i]);
+			dl->mx[i] += - dL->mx[i] * l->L->mx[i] / (r->L->mx[0] * r->L->mx[0]);
 	}
 }
 

@@ -25,7 +25,7 @@
 #define RESULT_NEURONS 10 // [0-9]
 #define BATCH_SIZE 1000
 #define DELTA 0.005f
-#define REG_SCALE 1.f
+#define REG_SCALE -1.f
 #define GRAD_STEP .0001f
 #define GRAD_SCALE 64
 #define SAMPLE_TIME 1

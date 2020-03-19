@@ -25,8 +25,9 @@ SimpleNN::SimpleNN(Dataset& _dataset) : dataset(_dataset)
 	auto Loss = AddLayer(NS, B, Layer::SDiv);											// loss function [1x1]						// 13 Loss = NS/B
 	auto W2 = AddLayer(WT, Layer::Pow2);												// [1024x10]								// 14 W2 = Pow2(W)
 	auto L2 = AddLayer(W2, Layer::Sum, 1, 1);											// [1x1]									// 15 L2 = Sum(W2)
+	auto L22 = AddLayer(L2, Layer::Pow2, 1, 1);
 	auto RS = AddLayer(regularization_scale);											// input RS [1x1]							// 16 RS = regularization parameter
-	auto Reg = AddLayer(L2, RS, Layer::SMMul);											// регул€ризаци€ [1x1]						// 17 Reg = RS*L2
+	auto Reg = AddLayer(L22, RS, Layer::SMMul);											// регул€ризаци€ [1x1]						// 17 Reg = RS*L2
 	F = AddLayer(Loss, Reg, Layer::MAdd);												// задача оптимизации - уменьшать [1x1]		// 18 F = L2 + Reg
 
 	grad_step = GRAD_STEP;
