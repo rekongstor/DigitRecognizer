@@ -675,7 +675,7 @@ void Layer::dFSumCol(Layer* l)
 		Matrix2d* dl = l->dL;
 		for (uint32_t i = 0; i < dl->a(); ++i)
 			for (uint32_t j = 0; j < dl->b(); ++j)
-				(*dl)(i, j) += (*dL)(i, 0) * (*l->L)(i, j);
+				(*dl)(i, j) += (*dL)(i, 0) * 1.f;
 	}
 }
 
