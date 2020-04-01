@@ -20,7 +20,7 @@ Digit Recognizer - Распознавание цифр
 * [x] Нейронная сеть
 * [x] Multithreading
   * [x] STD threads
-  * [ ] OpenMP
+  * [x] OpenMP
   * [ ] IntelTBB
   * [ ] OpenCL
 * [x] DirectX
